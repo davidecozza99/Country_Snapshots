@@ -114,15 +114,20 @@ names(myColorsCO2AFOLU) <- c("CalcLiveAllCO2e", "CalcDeforCO2",
                              "CalcPeatCO2","GHGbiofuels")
 
 countries <- c(
-  "ARG","AUS", "BRA", "CAN", "CHN", "COL","DEU", "ETH","FIN","GBR", "IDN", "IND",
-  "MEX","NOR", "RUS", "RWA","SWE",  "USA",
+  #  "ARG","AUS", 
+  # "BRA"
+  # , "CAN", "CHN", "COL","DEU",
+  "ETH"
+  # ,"FIN","GBR", "IDN", "IND",
+  # "MEX"
+  # ,"NOR", "RUS", "RWA","SWE",  "USA",
   # "DNK",
-  "GRC","TUR", "NPL"
+  # "GRC","TUR", "NPL"
 )
 
+# mex, bra and eth to do separetely from the others
 
-
-# ALPHA3 <- "CAN"
+ALPHA3 <- "ETH"
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -452,7 +457,7 @@ for (ALPHA3 in countries) {
                   y = 1+ 0.75*cos(middle) + c(df_y_textdonut$AFOLU_t, df_y_textdonut$Waste_t, df_y_textdonut$Energy_t, df_y_textdonut$IPPU_t),
                   label = paste0(Category, "\n", round(Amount* 100, 1), "%"),
                   color = Category),
-              size = 3.9,
+              size = 5,
               show.legend = F)+
     scale_color_manual(values = text_donut)+
     annotate("segment", 
@@ -498,12 +503,16 @@ for (ALPHA3 in countries) {
     ylim(0,max(sum(my_data_detail$Amount_scaled)))+
     coord_equal() +
     theme(plot.margin = unit(c(0, -0.5, 0, 0), "cm"),
-          plot.title = element_text(size = 7.5/0.52, hjust = 0.5),
+          plot.title = element_text(size = 50, hjust = 0.5),
           plot.background = element_rect(fill = "White"))+ 
     theme_void()+
-    xlab("Emissionss")+ 
+    xlab("Emissions")+ 
     labs(title = TeX(paste0(round(sum(my_data_detail[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
     ylab(NULL)
+  
+
+  
+  
   
   #If there are emissions & removals from AFOLU for your country
   if(exists("my_data_neg")){
@@ -531,8 +540,8 @@ for (ALPHA3 in countries) {
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
-            plot.title = element_text(size = 7.5/0.52, hjust = 0.5),
-            axis.title.x = element_text(size = 7.5/0.52),
+            plot.title = element_text(size = 50, hjust = 0.5),
+            axis.title.x = element_text(size = 50),
             panel.background = element_blank()) +
       xlab("Emissions") +
       ylab(NULL) +
@@ -571,8 +580,8 @@ for (ALPHA3 in countries) {
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
-            plot.title = element_text(size = 7.5/0.52, hjust = 0.5),
-            axis.title.x = element_text(size = 7.5/0.52),
+            plot.title = element_text(size = 50, hjust = 0.5),
+            axis.title.x = element_text(size = 50),
             panel.background = element_blank())+
       xlab("Removals")+
       labs(title = TeX(paste0("  ",round(sum(my_data_detail_neg[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
@@ -602,8 +611,8 @@ for (ALPHA3 in countries) {
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
-              plot.title = element_text(size = 7.5/0.52, hjust = 0.5),
-              axis.title.x = element_text(size = 7.5/0.52),
+              plot.title = element_text(size = 25, hjust = 0.5),
+              axis.title.x = element_text(size = 50),
               panel.background = element_blank())+
         xlab("Removals")+
         labs(title = TeX(paste0("  ",round(sum(my_data_detail_neg[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
@@ -655,8 +664,8 @@ for (ALPHA3 in countries) {
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
-              plot.title = element_text(size = 7.5/0.52, hjust = 0.5),
-              axis.title.x = element_text(size = 7.5/0.52),
+              plot.title = element_text(size = 50, hjust = 0.5),
+              axis.title.x = element_text(size = 50),
               panel.background = element_blank())+
         xlab("Emissions")+
         labs(title = TeX(paste0(round(sum(my_data_detail[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
@@ -698,7 +707,7 @@ for (ALPHA3 in countries) {
   p_final <- plot_grid(grid.arrange(
     grobs = list(p_figure, legend), 
     widths = c(2,1.5,1.85),
-    heights = c(1,4.2,1),
+    heights = c(1,8,1),
     layout_matrix = rbind(c(NA, NA, 2),
                           c(1, 1, 2),
                           c(NA, NA, 2))))
@@ -721,7 +730,7 @@ for (ALPHA3 in countries) {
     p_final <- plot_grid(grid.arrange(
       grobs = list(p_figure, legend),
       widths = c(2.40, 0.4, 1.2, 1.8),
-      heights = c(1,4.2,1),
+      heights = c(1,8,1),
       layout_matrix = rbind(c(NA, NA, NA, 2),
                             c(1, 1, 1, 2),
                             c(NA, NA, NA, 2))))
@@ -735,7 +744,7 @@ for (ALPHA3 in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 8, width = 20, res = 600
+    units = "in", height = 6, width = 16, res = 600
   )
   print(p_final)
   dev.off()
