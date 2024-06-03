@@ -4,7 +4,6 @@
 # Last update: 20240529
 
 ###### NEXT STEPS
-# INCLUDE DNK
 # IMPROVE FIGURE 
 # CHECK 
 
@@ -114,12 +113,14 @@ names(myColorsCO2AFOLU) <- c("CalcLiveAllCO2e", "CalcDeforCO2",
                              "CalcPeatCO2","GHGbiofuels")
 
 countries <- c(
-  #  "ARG","AUS", 
+  #  "ARG",
+  # "AUS"
+  # ,
   # "BRA"
   # , "CAN", "CHN", "COL","DEU",
-  "ETH"
+  # "ETH"
   # ,"FIN","GBR", "IDN", "IND",
-  # "MEX"
+  "MEX"
   # ,"NOR", "RUS", "RWA","SWE",  "USA",
   # "DNK",
   # "GRC","TUR", "NPL"
@@ -127,7 +128,7 @@ countries <- c(
 
 # mex, bra and eth to do separetely from the others
 
-ALPHA3 <- "ETH"
+ALPHA3 <- "MEX"
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -331,8 +332,8 @@ for (ALPHA3 in countries) {
                       labels = str_wrap(levels(data_bar_emission$Sub.Category),22)) + 
     theme(plot.margin = unit(c(-10, 0, -10, 0), "cm"),
           legend.spacing.x = unit(0.2, 'cm'),
-          legend.text = element_text(size = 7.5/0.52),
-          legend.title = element_text(size = 8/0.52))
+          legend.text = element_text(size = 18),
+          legend.title = element_text(size = 20))
   
   
   legend_emissions <- cowplot::get_legend(p_bar_emissions)
@@ -352,8 +353,8 @@ for (ALPHA3 in countries) {
                         labels = str_wrap(names(myColors_AFOLU_legend_removals)[order(names(myColors_AFOLU_legend_removals))],22)) + 
       theme(plot.margin = unit(c(-10, 0, -10, 0), "cm"),
             legend.spacing.x = unit(0.2, 'cm'),
-            legend.text = element_text(size = 7.5/0.52),
-            legend.title = element_text(size = 8/0.52))
+            legend.text = element_text(size = 18),
+            legend.title = element_text(size = 20))
     
     
     legend_removals <- cowplot::get_legend(p_bar_removals)
@@ -454,10 +455,10 @@ for (ALPHA3 in countries) {
     scale_fill_manual(name = "Source of Emissions", 
                       values = myColors_GHG_AFOLU)+
     geom_text(aes(x = 0.75*sin(middle), 
-                  y = 1+ 0.75*cos(middle) + c(df_y_textdonut$AFOLU_t, df_y_textdonut$Waste_t, df_y_textdonut$Energy_t, df_y_textdonut$IPPU_t),
+                  y = 1 + 0.75*cos(middle) + c(df_y_textdonut$AFOLU_t, df_y_textdonut$Waste_t, df_y_textdonut$Energy_t, df_y_textdonut$IPPU_t),
                   label = paste0(Category, "\n", round(Amount* 100, 1), "%"),
                   color = Category),
-              size = 5,
+              size = 6,
               show.legend = F)+
     scale_color_manual(values = text_donut)+
     annotate("segment", 
@@ -466,7 +467,7 @@ for (ALPHA3 in countries) {
              xend = 1.5,
              yend = c(df_yend$lines_right_top,
                       df_yend$lines_right_bottom)) + 
-    annotate("text", x = 0, y = 1, label = tot_Emission_All, size = 4.9, parse = TRUE)+
+    annotate("text", x = 0, y = 1, label = tot_Emission_All, size = 8.5, parse = TRUE)+
     coord_equal() +
     theme(plot.margin = unit(c(-2, -2, -2, -2), "cm"))+
     theme_void()+
@@ -494,7 +495,7 @@ for (ALPHA3 in countries) {
                   label = label,
                   color = Sub.Category),
               parse = T,
-              size = 4,
+              size = 6,
               show.legend = F)+
     scale_color_manual(values = myColors_text)+
     scale_fill_manual(name = "Source of AFOLU \nEmissions and \nRemovals",
@@ -502,12 +503,12 @@ for (ALPHA3 in countries) {
                       labels = str_wrap(names(myColors_AFOLU[(my_data_detail[,"Sub.Category"])[order(my_data_detail[,"Sub.Category"])]]),27))+
     ylim(0,max(sum(my_data_detail$Amount_scaled)))+
     coord_equal() +
-    theme(plot.margin = unit(c(0, -0.5, 0, 0), "cm"),
-          plot.title = element_text(size = 50, hjust = 0.5),
-          plot.background = element_rect(fill = "White"))+ 
     theme_void()+
-    xlab("Emissions")+ 
     labs(title = TeX(paste0(round(sum(my_data_detail[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
+    theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Adjust margins as needed
+          plot.title = element_text(size = 20, hjust = 0.5),
+          plot.background = element_rect(fill = "white", color = "white"))+           
+    xlab("Emissions")+ 
     ylab(NULL)
   
 
@@ -528,7 +529,7 @@ for (ALPHA3 in countries) {
                     label = label,
                     color = Sub.Category),
                 parse = T,
-                size = 4,
+                size = 6,
                 show.legend = F)+
       scale_color_manual(values = myColors_text)+
       scale_fill_manual(values = myColors_AFOLU)+
@@ -540,8 +541,8 @@ for (ALPHA3 in countries) {
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
-            plot.title = element_text(size = 50, hjust = 0.5),
-            axis.title.x = element_text(size = 50),
+            plot.title = element_text(size = 20, hjust = 0.5),
+            axis.title.x = element_text(size = 20),
             panel.background = element_blank()) +
       xlab("Emissions") +
       ylab(NULL) +
@@ -568,7 +569,7 @@ for (ALPHA3 in countries) {
                     label = label,
                     color = Sub.Category),
                 parse = T,
-                size = 4,
+                size = 6,
                 show.legend = F) +
       scale_color_manual(values = myColors_text)+
       scale_fill_manual(values = myColors_AFOLU)+
@@ -580,8 +581,8 @@ for (ALPHA3 in countries) {
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
-            plot.title = element_text(size = 50, hjust = 0.5),
-            axis.title.x = element_text(size = 50),
+            plot.title = element_text(size = 20, hjust = 0.5),
+            axis.title.x = element_text(size = 20),
             panel.background = element_blank())+
       xlab("Removals")+
       labs(title = TeX(paste0("  ",round(sum(my_data_detail_neg[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
@@ -601,7 +602,7 @@ for (ALPHA3 in countries) {
                       label = label,
                       color = Sub.Category),
                   parse = T,
-                  size = 4,
+                  size = 6,
                   show.legend = F) +
         scale_color_manual(values = myColors_text)+
         scale_fill_manual(values = myColors_AFOLU)+
@@ -611,8 +612,8 @@ for (ALPHA3 in countries) {
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
-              plot.title = element_text(size = 25, hjust = 0.5),
-              axis.title.x = element_text(size = 50),
+              plot.title = element_text(size = 20, hjust = 0.5),
+              axis.title.x = element_text(size = 20),
               panel.background = element_blank())+
         xlab("Removals")+
         labs(title = TeX(paste0("  ",round(sum(my_data_detail_neg[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
@@ -654,7 +655,7 @@ for (ALPHA3 in countries) {
                       label = label,
                       color = Sub.Category),
                   parse = T,
-                  size = 4,
+                  size = 6,
                   show.legend = F) +
         scale_color_manual(values = myColors_text)+
         scale_fill_manual(values = myColors_AFOLU)+
@@ -664,8 +665,8 @@ for (ALPHA3 in countries) {
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
-              plot.title = element_text(size = 50, hjust = 0.5),
-              axis.title.x = element_text(size = 50),
+              plot.title = element_text(size = 20, hjust = 0.5),
+              axis.title.x = element_text(size = 20),
               panel.background = element_blank())+
         xlab("Emissions")+
         labs(title = TeX(paste0(round(sum(my_data_detail[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+

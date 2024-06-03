@@ -1239,11 +1239,12 @@ melted$sign <- ifelse(melted$value < 0,
                       1)
 
 complete_data <- melted %>% 
-  select(-afforestation, -agricultural_land_expansion) %>% 
-  mutate(value = ifelse(variable %in% c("Population_change", "kcal_targ_change", "pdty_crop_change", 
-                                        "pdty_live_change", "density_change", "Export_quantity_change", 
-                                        "Import_quantity_change", "Foodwaste_change", "pa", "agrprac_change", 
-                                        "irr_change", "biofuel_use_change"), value * 100, value))
+  select(-afforestation, -agricultural_land_expansion) 
+# %>% 
+#   mutate(value = ifelse(variable %in% c("Population_change", "kcal_targ_change", "pdty_crop_change", 
+#                                         "pdty_live_change", "density_change", "Export_quantity_change", 
+#                                         "Import_quantity_change", "Foodwaste_change", "pa", "agrprac_change", 
+                                        # "irr_change", "biofuel_use_change"), value * 100, value))
 
 
 
@@ -1328,26 +1329,43 @@ create_plot <- function(data, alpha3) {
       axis.ticks.y = element_blank(),
       legend.background = element_blank(),
       legend.key = element_rect(fill = NA),
-      legend.text = element_text(size = 12),
-      strip.text = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14),
+      strip.text = element_text(size = 18, face = "bold"),
       panel.spacing.x = unit(0.75, "lines"),
-      plot.caption = element_text(size = 14),
+      plot.caption = element_text(size = 16),
       strip.text.y.left = element_text(angle = 0),
-      axis.text = element_text(size = 14),
-      axis.title.x = element_text(size = 20),
+      axis.text = element_text(size = 16),
+      axis.title.x = element_text(size = 22),
       axis.line.x = element_line()
     )
 }
 
+# Define the output directory
+figure_directory <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date())))
+dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
+print(figure_directory)
+
+
 unique_alpha3 <- unique(complete_data$ALPHA3)
+
+
+
 
 for (alpha3 in unique_alpha3) {
   data_filtered <- complete_data %>% filter(ALPHA3 == alpha3)
   
   p <- create_plot(data_filtered)
   
-  filename <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date()), "_",alpha3, ".png"))
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".tiff")
+  tiff(
+    filename = here(figure_directory, filename),
+    units = "in", height = 4, width = 30, res = 600
+  )
+  print(p)
+  dev.off()
   
-  ggsave(filename = filename, plot = p, width = 30, height = 4)
+  # filename <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date()), "_",alpha3, ".png"))
+  
+  # ggsave(filename = filename, plot = p, width = 30, height = 4)
 }
 
