@@ -104,11 +104,12 @@ print(figure_directory)
 
 countries <- c(
   "ARG", "AUS", "BRA", "CAN", "CHN", "COL", "ETH", "FIN", "DEU", "IND", 
-  "IDN", "MEX", "NOR", "NPL", "TUR", "DNK", "GRC", "RWA", "SWE", "RUS", "GBR","USA"
+  "IDN", "MEX", "NOR", "NPL", "TUR", "DNK", "GRC", "RWA", "SWE", "RUS", "GBR","USA",
+  "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-
-
+# 
+# ALPHA3 <- "ETH"
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -152,6 +153,8 @@ for (ALPHA3 in countries) {
   
   # Compute country specific kcal -------------------------------------------
   data_kcal <- aggregate(kcalfeasprod ~ year + Pathway + PROD_GROUP, data = product_country, sum)
+  if(ALPHA3 %in% c("ARG", "AUS", "BRA", "CAN", "CHN", "COL", "ETH", "FIN", "DEU", "IND", 
+                   "IDN", "MEX", "NOR", "NPL", "TUR", "DNK", "GRC", "RWA", "SWE", "RUS", "GBR","USA")){
   FOOD_missing_country <- aggregate(kcalfeasprod ~ PROD_GROUP, data = FOOD_missing_country, sum)
   data_kcal <- rbind(data_kcal,
                      cbind.data.frame(year = 2050,
@@ -163,9 +166,9 @@ for (ALPHA3 in countries) {
                                       Pathway = sort(rep(c("CurrentTrends", "NationalCommitments", "GlobalSustainability"), length(FOOD_missing_country$PROD_GROUP))),   
                                       PROD_GROUP = FOOD_missing_country$PROD_GROUP,
                                       kcalfeasprod = FOOD_missing_country$kcalfeasprod))
+  }
   data_kcal_2020 <- data_kcal
   data_kcal <- data_kcal[which(data_kcal$year == 2050),]
-  
   # Merge recommendation and actual value together --------------------------
   finaldata <- EAT_data_fill %>% 
     left_join(data_kcal) %>% 
@@ -186,6 +189,8 @@ for (ALPHA3 in countries) {
   # Adjust values -----------------------------------------------------------
   finaldata$newkcal <- rep(0, nrow(finaldata))
   finaldata$group <- finaldata$PROD_GROUP
+  finaldata[is.na(finaldata)] <- 0
+  
   for (cur_path in levels(as.factor(finaldata$Pathway))) {
     for (cur_prod in levels(as.factor(finaldata$PROD_GROUP))) {
       feas <- finaldata$kcalfeasprod[which(finaldata$PROD_GROUP == cur_prod & finaldata$Pathway == cur_path)]

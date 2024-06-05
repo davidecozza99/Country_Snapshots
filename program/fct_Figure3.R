@@ -42,7 +42,7 @@ product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>%
 data_F3 <- as.data.frame(read_csv(here("data","Figure 3", "20230720_HomePageISO.csv"))) 
 data_F3$Category <- factor(data_F3$Category, levels = c("AFOLU", "Waste", "Energy", "IPPU", "Other"))
 
-# 
+
 # country_abbreviations <- c(
 #   "Argentina" = "ARG",
 #   "Australia" = "AUS",
@@ -74,8 +74,39 @@ data_F3$Category <- factor(data_F3$Category, levels = c("AFOLU", "Waste", "Energ
 #     TRUE ~ as.character(Country)
 #   )) 
 
+# For Regions"
+GHG_region <- read_excel(here("data", "Figure 3", "GHG_region.xlsx"))
+map_country_region <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx")) 
 
 
+GHG_region_agg <- GHG_region %>% 
+  left_join(map_country_region, by = c("Country" = "Country_FAO")) %>% 
+  select(-Country) %>% 
+  rename(Country = Country_FABLE) %>% 
+  group_by(Country, Year, Category, Sub.Category) %>% 
+  mutate(Mt.CO2.equivalent = sum(Mt.CO2.equivalent)) %>% 
+  mutate(kt.CO2.equivalent = sum(kt.CO2.equivalent)) %>% 
+  mutate(t.CO2.equivalent = sum(t.CO2.equivalent)) %>% 
+  mutate(Gt.CO2.equivalent = sum(Gt.CO2.equivalent)) %>% 
+  unique() %>% 
+  filter(Country %in% c("R_AFR", "R_ASIPAC", "R_LAM", "R_MECAS", "R_NEU", "R_OEU")) %>% 
+  mutate(Country = ifelse(Country == "R_AFR", "R_SSA",
+                          ifelse(Country =="R_ASIPAC", "R_ASP",
+                                 ifelse(Country == "R_LAM", "R_CSA",
+                                        ifelse(Country == "R_MECAS", "R_NMC",
+                                               Country))))) %>% 
+  filter(Year == 2010)
+  
+
+# na_countries <- GHG_region_agg %>%
+#   filter(is.na(Country_FABLE)) %>%
+#   select(Country) %>%
+#   distinct()
+
+
+data_F3 <- data_F3 %>% 
+  rbind(GHG_region_agg) %>% 
+  mutate(Sub.Category = na_if(Sub.Category, "NA"))
 
 # Define the output directory
 figure_directory <- here("output", "figures", "figure3", paste0(gsub("-", "", Sys.Date())))
@@ -120,19 +151,18 @@ countries <- c(
   # , "CAN", "CHN", "COL","DEU",
   # "ETH"
   # ,"FIN","GBR", "IDN", "IND",
-  "MEX"
+  # "MEX"
   # ,"NOR", "RUS", "RWA","SWE",  "USA",
   # "DNK",
-  # "GRC","TUR", "NPL"
+  # "GRC","TUR", "NPL",
+  "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
 # mex, bra and eth to do separetely from the others
 
-ALPHA3 <- "MEX"
+# ALPHA3 <- "R_ASP"
 # Loop over each country
 for (ALPHA3 in countries) {
-  
-  
   
   data_country <- droplevels(data[which(data$country == ALPHA3),])
   product_country <- droplevels(product[which(product$country == ALPHA3),])
@@ -157,7 +187,7 @@ for (ALPHA3 in countries) {
   if(length(which(my_data[,"Mt.CO2.equivalent"]<0))>0){
     my_data_neg <- my_data[which(my_data[,"Mt.CO2.equivalent"]<0),]
     my_data <- my_data[-which(my_data[,"Mt.CO2.equivalent"]<0),]
-    my_data_neg$Amount <- -my_data_neg[,"Mt.CO2.equivalent"] / sum(my_data[,"Mt.CO2.equivalent"])#to have right unit"
+    my_data_neg$Amount <- -my_data_neg[,"Mt.CO2.equivalent"] / sum(my_data[,"Mt.CO2.equivalent"])
     
   }
   
@@ -222,6 +252,8 @@ for (ALPHA3 in countries) {
     filter(Category == "AFOLU" | lag(Category == "AFOLU")) %>%
     slice(1, n())
   
+  my_data_lines[is.na(my_data_lines)] <- 0
+  
   if(my_data_lines$x_pos[1]<0){
     my_data_lines$x_pos <- c(0,0)
     my_data_lines$y_pos <- c(2,0)
@@ -262,7 +294,8 @@ for (ALPHA3 in countries) {
                       "Agricultural Soils" = "#C21111",
                       "Other (Agriculture)" = "#FFF27E",
                       "Grassland" = "#c6e065",
-                      "CO2 Emissions and Removals from Soil"= "#76c4c4" ,
+                      "CO2 Emissions and Removals from Soil"= "#76c4c4",
+                      "CO₂ Emissions and Removals from Soil" = "#76c4c4",
                       "Harvested Wood Products" = "#734339",
                       "Cropland" = "#96325f",
                       "Wetlands" = "#bf2cac",
@@ -272,6 +305,7 @@ for (ALPHA3 in countries) {
                       "Changes in Forest and Other Woody Biomass Stocks" = "#d65a62",
                       "Abandonment of Managed Lands" = "#2563ba",
                       "Other (Forest & LUC)" = "#83a1cc",
+                      "Prescribed Burning of Savannas" = "steelblue",
                       "Land-Use Change and Forestry" = "#61543f")
   
   myColors_text <- c("Enteric Fermentation" = "white",
@@ -282,6 +316,7 @@ for (ALPHA3 in countries) {
                      "Other (Agriculture)" = "black",
                      "Grassland" = "black",
                      "CO2 Emissions and Removals from Soil"= "black" ,
+                     "CO₂ Emissions and Removals from Soil" = "black",
                      "Harvested Wood Products" = "white",
                      "Cropland" = "white",
                      "Wetlands" = "white",
@@ -291,19 +326,23 @@ for (ALPHA3 in countries) {
                      "Changes in Forest and Other Woody Biomass Stocks" = "white",
                      "Abandonment of Managed Lands" = "white",
                      "Other (Forest & LUC)" = "black",
+                     "Prescribed Burning of Savannas" = "black",
                      "Land-Use Change and Forestry" = "white")
   
   order_emissions = c("Agricultural Soils",
+                      "Abandonment of Managed Lands",
                       "Enteric Fermentation",
                       "Manure Management",
                       "Rice Cultivation",
                       "Other (Agriculture)",
                       "CO2 Emissions and Removals from Soil" ,
+                      "CO₂ Emissions and Removals from Soil",
                       "Grassland",
                       "Harvested Wood Products",
                       "Cropland",
                       "Forest and Grassland Conversion",
                       "Land-Use Change and Forestry",
+                      "Prescribed Burning of Savannas",
                       "Settlements",
                       "Wetlands",
                       "Other (Forest & LUC)")
@@ -315,6 +354,7 @@ for (ALPHA3 in countries) {
                      "Grassland",
                      "Harvested Wood Products",
                      "Land-Use Change and Forestry",
+                     "Prescribed Burning of Savannas",
                      "Other (Forest & LUC)")
 
   #only keep the necessary sub categories for your country
@@ -372,9 +412,10 @@ for (ALPHA3 in countries) {
   #Need to adjust the coordinates for the lines that link the donut to the bar chart depending on the country
   df_yend <- data.frame(Country = c("ARG","AUS","BRA","CAN","CHN","COL","ETH","FIN","DEU","IND",
                                     "IDN","MEX","NOR","NPL","TUR","DNK","GRC","RUS","RWA","SWE",
-                                    "GBR","USA"),
-                        lines_right_top = rep(1.75, 22),
-                        lines_right_bottom = rep(0.2, 22))
+                                    "GBR","USA",
+                                    "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"),
+                        lines_right_top = rep(1.75, 28),
+                        lines_right_bottom = rep(0.2, 28))
   
   
   
@@ -422,11 +463,12 @@ for (ALPHA3 in countries) {
   #Need to adjust the y coordinates of the text in the donut
   df_y_textdonut <- data.frame(Country = c("ARG","AUS","BRA","CAN","CHN","COL","ETH","FIN","DEU","IND",
                                            "IDN","MEX","NOR","NPL","TUR","DNK","GRC","RUS","RWA","SWE",
-                                           "GBR","USA"),
-                               AFOLU_t = rep(0, 22),
-                               Waste_t = rep(0, 22),
-                               Energy_t = rep(0, 22),
-                               IPPU_t = rep(0, 22))
+                                           "GBR","USA",
+                                           "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"),
+                               AFOLU_t = rep(0, 28),
+                               Waste_t = rep(0, 28),
+                               Energy_t = rep(0, 28),
+                               IPPU_t = rep(0, 28))
   
   df_y_textdonut <- df_y_textdonut %>% 
     mutate(AFOLU_t = ifelse(Country == "Malaysia",
@@ -751,7 +793,7 @@ for (ALPHA3 in countries) {
   dev.off()
   
 }
-
+ 
 
 
 

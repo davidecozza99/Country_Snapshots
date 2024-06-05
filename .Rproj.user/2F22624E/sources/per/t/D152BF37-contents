@@ -188,8 +188,8 @@ product_tot <- product_df %>%
 
 
 # pdty_livestock ----------------------------------------------------------
-# 
-#  db_full <- data.frame()
+
+# db_full <- data.frame()
 # 
 # for (cur_file in file){
 #   #extract the righ sheet in Calculator
@@ -232,6 +232,7 @@ product_tot <- product_df %>%
 # }
 # write.xlsx(db_full %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedPdtyLivestock.xlsx")), row.names = F)
 db_full <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedPdtyLivestock.xlsx"))
+
 
 
 ########### OLD METHOD ####################
@@ -503,6 +504,7 @@ db_change_crop <- db_full_crop_agg %>%
   #relative change betwwen 2050 and 2015
   mutate(pdty_crop_change = round(pdty_2050/pdty_2020, 2)) %>% 
   select(ALPHA3, Pathway, pdty_crop_change)
+
 
 
 
@@ -855,7 +857,7 @@ db_change_pa <- db_pa %>%
 #   #???Extract the right sheet from calculators
 #   data <- read_excel(here("data", "Calcs_new", cur_file),
 #                      sheet = "3_calc_crops",
-#                      range = "G28:AZ798")
+#                      range = "G28:AE798")
 #   # if(grepl("SWE", cur_file)){
 #   # data <- read_excel(here("data", "Calcs", cur_file),
 #   #                      sheet = "2_calc_livestock",
@@ -864,8 +866,7 @@ db_change_pa <- db_pa %>%
 # 
 #   data <- data %>%
 #     slice(which(YEAR %in% c(2020, 2050))) %>%
-#     rename_all(.funs = tolower) %>%
-#     select(year, crop, harvarea, shiftirrarea) %>%
+#     select(YEAR, CROP, Harvarea, IrrHarvArea) %>%
 #     mutate(ALPHA3 = ifelse(grepl("Current", cur_file),
 #                            str_sub(cur_file, 40, 42),
 #                            ifelse(grepl("National", cur_file), str_sub(cur_file, 46, 48),
@@ -890,6 +891,8 @@ db_change_pa <- db_pa %>%
 # 
 # write.xlsx(db_irr %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedIrr.xlsx")), row.names = F)
 
+
+
 db_irr <- readxl::read_excel(here("data", "extracted_scenathon", "20240527_ExtractedIrr.xlsx")) %>% 
   dplyr::filter(year %in% c(2020,2050)) %>%  
   dplyr::filter(complete.cases(.)) # Eliminate rows with any NA values
@@ -900,8 +903,8 @@ harvarea_2020 <- db_irr %>%
 
 db_irr_with_harvarea_2020 <- db_irr %>%
   left_join(harvarea_2020, by = c("ALPHA3", "Pathway", "crop"), relationship = "many-to-many") %>%
-    select(-harvarea) %>%
-    unique() 
+  select(-harvarea) %>%
+  unique() 
 
 
 db_irr_agg <- db_irr_with_harvarea_2020 %>%
@@ -928,7 +931,7 @@ db_change_irr <- db_irr_agg %>%
   mutate(irr_change = ifelse(ALPHA3 == "GRC", 0, irr_change)) %>% 
   mutate(irr_change = ifelse(ALPHA3 == "FIN" & Pathway == "NationalCommitments", 6, irr_change)) %>% 
   mutate(irr_change = ifelse(ALPHA3 == "FIN" & Pathway == "GlobalSustainability", 6, irr_change))  
-  
+
 
 ####### OLD METHOD ###########
 # db_irr <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedIrr.xlsx")) %>% 
@@ -1063,6 +1066,8 @@ db_change_agrprac <- db_agrprac_agg %>%
 #   select(ALPHA3, Pathway, agrprac_change) %>% 
 #   data.frame() %>% 
 #   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3))
+
+
 
 
 
@@ -1345,8 +1350,7 @@ db_ph_loss_change <- db_ph_loss %>%
   select(ALPHA3, Pathway, share_ph_loss_final) %>% 
   unique()
   
-  ##################### TO REVISE IF IT ALL GOOD ##############################
-  
+
   
 # data final --------------------------------------------------------------
 
@@ -1364,112 +1368,11 @@ data_final <- df_change %>%
   left_join(db_change_biofuel) %>% 
   # left_join(db_ph_loss_change) %>% 
   dplyr::filter(ALPHA3 != "WORLD")
-# %>% 
-  # mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "NMC", ALPHA3)) 
-# %>%
-#   mutate(ALPHA3 = ifelse(nchar(ALPHA3) == 5, str_sub(ALPHA3, 3, 5), ALPHA3))
+
 
 data_final_FABLE <- data_final %>% 
-  #slice(which(!(ALPHA3 %in% c("ASP", "NEU", "NMC", "ROEU", "SSA", "CSA")))) %>% 
   data.frame()
-# 
-# 
-# 
-# 
-# 
-# # Select variables for normalization
-# selected_vars <- c("Population_change", "kcal_targ_change", "pdty_crop_change", "pdty_live_change",
-#                    "density_change", "Expansion_change", "Export_quantity_change", "Import_quantity_change",
-#                    "Foodwaste_change"
-#                    # , "Affor", "pa"
-#                    )
-# 
-# data_final_FABLE_k <- data_final_FABLE %>%
-#   group_by(ALPHA3) %>%
-#   mutate(across(all_of(selected_vars), ~ mean(., na.rm = TRUE))) %>%
-#   ungroup()
-# 
-# # Normalize variables
-# normalized_data <- scale(data_final_FABLE_k[selected_vars])
-# 
-# # Replace missing values with the mean of each variable
-# normalized_data <- na.aggregate(normalized_data, FUN = mean)
-# 
-# #Veryfying which is the best number of cluster
-# # fviz_nbclust(normalized_data, kmeans, method = "wss")
-# # fviz_nbclust(normalized_data, kmeans, method = "silhouette")
-# 
-# 
-# 
-# # number of clusters
-# k <- 5
-# 
-# set.seed(234)  
-# 
-# # Perform k-means clustering
-# cluster_results <- kmeans(normalized_data, centers = k)
 
-# fviz_cluster(cluster_results, data = normalized_data)
-
-
-# Compute cluster centers
-# cluster_centers <- cluster_results$centers
-
-# # Calculate variability of each variable across clusters
-# variability <- apply(cluster_centers, 2, sd)
-# 
-# # Rank variables by variability
-# variable_importance <- sort(variability, decreasing = TRUE)
-# 
-# # Print variable importance
-# print(variable_importance)
-
-
-# Add cluster labels to the original data
-# data_final_FABLE_k$cluster <- cluster_results$cluster
-# 
-# 
-# ggplot(data_final_FABLE_k, aes(x = cluster, y =ALPHA3 )) +
-#   geom_point() +
-#   labs(title = "Cluster - Country CT")
-
-# #Without taking into consideratio the weight of each country
-# cluster_summary <- data_final_FABLE_k %>%
-#  
-# 
-# clusters <- data_final_FABLE_k %>% 
-#   select(ALPHA3, cluster) %>% 
-#   unique()
-# 
-# 
-# data_final_FABLE <- data_final_FABLE %>% 
-#   left_join(clusters, by="ALPHA3") %>% 
-#   group_by(cluster, Pathway) %>%
-#   mutate(across(all_of(selected_vars), mean, na.rm = TRUE)) %>% 
-#   ungroup() %>% 
-#   select(-cluster) 
-#   
-# # 
-# #BOX PLOTS
-# data_final_FABLE_box <- data_final_FABLE %>%
-#   left_join(clusters, by="ALPHA3") %>% 
-#   select(-Pathway, -ALPHA3)
-# 
-# # Define the variables of interest
-# variables <- c("Population_change", "kcal_targ_change", "pdty_crop_change", "pdty_live_change",
-#                "density_change", "Expansion_change", "Export_quantity_change", "Import_quantity_change",
-#                "Foodwaste_change")
-# 
-# # Reshape the data from wide to long format
-# data_long <- tidyr::pivot_longer(data_final_FABLE_box, cols = variables, names_to = "variable", values_to = "value")
-# 
-# # Create boxplots for each variable, faceted by cluster
-# ggplot(data_long, aes(x = factor(cluster), y = value)) +
-#   geom_boxplot() +
-#   facet_wrap(~variable, scales = "free_y", ncol = 3) +
-#   labs(title = "Boxplots of variables by clluster") +
-#   theme_minimal()
-# 
 
 melted <- melt(data_final_FABLE, id.vars = c("ALPHA3", "Pathway", "afforestation", "agricultural_land_expansion")) 
 melted$value <- ifelse(melted$variable == "pa", melted$value,
@@ -1488,7 +1391,12 @@ melted$sign <- ifelse(melted$value < 0,
                       1)
 
 complete_data <- melted %>% 
-  select(-afforestation, -agricultural_land_expansion)
+  select(-afforestation, -agricultural_land_expansion) 
+# %>% 
+#   mutate(value = ifelse(variable %in% c("Population_change", "kcal_targ_change", "pdty_crop_change", 
+#                                         "pdty_live_change", "density_change", "Export_quantity_change", 
+#                                         "Import_quantity_change", "Foodwaste_change", "pa", "agrprac_change", 
+                                        # "irr_change", "biofuel_use_change"), value * 100, value))
 
 
 
@@ -1539,114 +1447,75 @@ complete_data$ALPHA3 <- factor(as.character(complete_data$ALPHA3), levels = c("A
 
 
 
-### Merge cluster data with complete_data
-# complete_data <- complete_data %>% 
-#   left_join(clusters, by="ALPHA3")
-# 
-# 
-
 
 # Define the order of Pathway levels
 pathway_order <- c("CurrentTrend", "NationalCommitments", "GlobalSustainability")
 
-# cluster_labels <- c(`1` = "NOR, DNK, DEU", `2` = "ARG, AUS, GRC, \n MEX, R_NEU, R_OEU,\nRUS, TUR, USA", `3` = "AFRICA", 
-#                     `4` = "COL, IDN,\n NPL, R_ASP", `5` = "BRA, CAN, CHN,\n FIN, GBR, IND,\n R_CSA, RMECAS, SWE")
-
-# complete_data_country <- complete_data %>%
-#   dplyr::filter(!ALPHA3 %in% c("ASP", "CSA", "NEU", "NMC",
-#          "OEU", "SSA"))
-# complete_data_region <- complete_data %>%
-#   dplyr::filter(ALPHA3 %in% c("ASP", "CSA", "NEU", "NMC",
-#                         "OEU", "SSA"))
 
 
-# complete_data <- complete_data %>%
-#   mutate(ALPHA3 = gsub("^R_", "", ALPHA3))  
-# 
+#Plot
+create_plot <- function(data, alpha3) {
+  ggplot(data, aes(y = value, x = reorder(Pathway, -as.numeric(factor(Pathway, levels = pathway_order))), group = ALPHA3, fill = factor(sign))) +
+    geom_col(position = "dodge", show.legend = FALSE) +
+    ylab("Relative change between 2020 and 2050 (2020=0)") +
+    coord_flip() +
+    scale_x_discrete(labels = c(GlobalSustainability = "GS",
+                                NationalCommitments = "NC",
+                                CurrentTrend ="CT")) +
+    scale_y_continuous(n.breaks = 3) +  
+    geom_hline(yintercept = 0, linetype = "dashed", size = 2) +
+    facet_wrap(~ variable,
+               switch = "y",
+               labeller = labeller(variable = var.labs),
+               drop = TRUE,
+               nrow = 3,  
+               scales = "free_x") +
+    # scale_fill_manual(values = c("steelblue", "blue")) +
+    theme(
+      panel.background = element_rect(fill = '#F2F2F2'),
+      panel.grid  = element_blank(),
+      strip.placement = "outside",
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.background = element_blank(),
+      legend.key = element_rect(fill = NA),
+      legend.text = element_text(size = 16),
+      strip.text = element_text(size = 20, face = "bold"),
+      panel.spacing.x = unit(2, "lines"),
+      plot.caption = element_text(size = 18),
+      strip.text.y.left = element_text(angle = 0),
+      axis.text = element_text(size = 18),
+      axis.title.x = element_text(size = 24),
+      axis.line.x = element_line()
+    )
+}
+
+# Define the output directory
+figure_directory <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date())))
+dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
+print(figure_directory)
 
 
-# # Reorder ALPHA3 with new levels
-# complete_data$ALPHA3 <- factor(complete_data$ALPHA3, levels = c("ARG", "AUS", "BRA", "CAN", "CHN", "COL", "DEU", "DNK", "ETH", "FIN", "GRC", "IDN", "IND", 
-#                                                                 "MEX", "NPL", "NOR", "RUS", "RWA", "SWE", "TUR", "UK", "USA", "ASP", "CSA", "NEU", "NMC", 
-#                                                                 "OEU", "SSA"))
-# 
+unique_alpha3 <- unique(complete_data$ALPHA3)
 
-p_final <- ggplot(complete_data, aes(y = value, x = reorder(Pathway, -as.numeric(factor(Pathway, levels = pathway_order))), group = ALPHA3, fill = sign)) +
-  geom_col(position = "dodge", show.legend = FALSE)+
-  ylab("Relative change between 2020 and 2050 (2020=0)")+
-  coord_flip()+
-  scale_x_discrete(labels = c(GlobalSustainability = "GS",
-                              NationalCommitments = "NC",
-                              CurrentTrend ="CT"))+
-  scale_y_continuous(n.breaks = 3)+
-  geom_hline(yintercept = 0, linetype = "dashed")+
-  facet_grid(ALPHA3~variable,
-             switch = "y",
-             labeller = labeller(variable = var.labs),
-             drop = T,
-             space = "fixed",
-             scale = "free")+
-  theme(
-    panel.background = element_rect(fill = '#F2F2F2'),
-    panel.grid  = element_blank(),
-    strip.placement = "outside",
-    axis.title.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    legend.background=element_blank(),
-    legend.key = element_rect(fill = NA),
-    legend.text = element_text(size = 12),
-    strip.text = element_text(size = 14, face = "bold"),
-    panel.spacing.x = unit(0.75, "lines"),
-    plot.caption = element_text(size = 14),
-    strip.text.y.left = element_text(angle = 0),
-    axis.text = element_text(size = 10),
-    axis.title.x = element_text(size = 20),
-    axis.line.x = element_line()
+
+
+
+for (alpha3 in unique_alpha3) {
+  data_filtered <- complete_data %>% filter(ALPHA3 == alpha3)
+  
+  p <- create_plot(data_filtered)
+  
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".tiff")
+  tiff(
+    filename = here(figure_directory, filename),
+    units = "in", height = 20, width = 30, res = 600
   )
-
-# +
-#   labs(caption = "(i) Results are expressed in code, taking the value 1 for 'Free expansion scenario', -0.5 for 'No deforestation' and -1 for 'No Agricultural expansion'.
-#   \n(ii) Results are expressed in net increase rather than relative change.
-#   \n(iii) Results are expressed % of consumption which is wasted.
-#   \n(iv) Results are expressed in % of total land in 2050.
-#   \n(vi) Results are expressed as share of production (weighted average by kcal) 
-# ")
-  #  
-
-
-# width = 18
-# height = 14
-# print(p_final)
-# 
-# 
-tiff(here("output", "figures", paste0(gsub("-", "",Sys.Date()), "_", "ScenarioAssumptionScenathon.tiff")),
-     units = "in", height = 14, width = 24, res = 300)
-plot(p_final)
-dev.off()
-
-
-png(here("output", "figures", paste0(gsub("-", "", Sys.Date()), "_", "ScenarioAssumptionScenathon.png")),
-    units = "in", height = 14, width = 24, res = 300)
-plot(p_final)
-dev.off()
-
-
-pdf_filename <- here("output", "figures", paste0(gsub("-", "", Sys.Date()), "_", "ScenarioAssumptionScenathon.pdf"))
-
-width <- 24
-height <- 14
-
-pdf(pdf_filename, width = width, height = height)
-print(p_final)
-dev.off()
-
-# width <- 30
-# height <- 8
-# 
-# pdf(pdf_filename_region, width = width, height = height)
-# print(p_final_region)
-# dev.off()
-
-
-
+  print(p)
+  dev.off()
+  
+  # filename <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date()), "_",alpha3, ".png"))
+  
+  # ggsave(filename = filename, plot = p, width = 30, height = 4)
+}
 

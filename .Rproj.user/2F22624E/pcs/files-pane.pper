@@ -1,9 +1,9 @@
 {
-    "path": "C:/Users/Davide/Desktop/GitHub/Country_Snapshots",
+    "path": "C:/Users/Davide/Desktop/GitHub/Country_Snapshots/program",
     "sortOrder": [
         {
             "columnIndex": 2,
-            "ascending": true
+            "ascending": false
         }
     ]
 }
