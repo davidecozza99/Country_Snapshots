@@ -1455,7 +1455,7 @@ pathway_order <- c("CurrentTrend", "NationalCommitments", "GlobalSustainability"
 
 #Plot
 create_plot <- function(data, alpha3) {
-  ggplot(data, aes(y = value, x = reorder(Pathway, -as.numeric(factor(Pathway, levels = pathway_order))), group = ALPHA3, fill = factor(sign))) +
+  ggplot(data, aes(y = value, x = reorder(Pathway, -as.numeric(factor(Pathway, levels = pathway_order))), group = ALPHA3, fill = sign)) +
     geom_col(position = "dodge", show.legend = FALSE) +
     ylab("Relative change between 2020 and 2050 (2020=0)") +
     coord_flip() +
@@ -1470,7 +1470,7 @@ create_plot <- function(data, alpha3) {
                drop = TRUE,
                nrow = 3,  
                scales = "free_x") +
-    # scale_fill_manual(values = c("steelblue", "blue")) +
+    # scale_fill_manual(values = c("#D5EB4B", "#66BB6A")) +
     theme(
       panel.background = element_rect(fill = '#F2F2F2'),
       panel.grid  = element_blank(),
@@ -1489,6 +1489,7 @@ create_plot <- function(data, alpha3) {
       axis.line.x = element_line()
     )
 }
+
 
 # Define the output directory
 figure_directory <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date())))
@@ -1509,13 +1510,10 @@ for (alpha3 in unique_alpha3) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 20, width = 30, res = 600
+    units = "in", height = 12, width = 35, res = 600
   )
   print(p)
   dev.off()
-  
-  # filename <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date()), "_",alpha3, ".png"))
-  
-  # ggsave(filename = filename, plot = p, width = 30, height = 4)
+
 }
 

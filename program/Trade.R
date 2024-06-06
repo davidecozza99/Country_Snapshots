@@ -56,29 +56,36 @@ countries <- c(
 
 ## #Export ###
 
-# Function to get top 5 products by export_quantity for each country
-get_top_5_products <- function(country_data) {
+get_top_products <- function(country_data) {
+  # Determine the number of top products based on the country
+  top_n <- case_when(
+    unique(country_data$alpha3) == "NOR" ~ 3,
+    unique(country_data$alpha3) == "GBR" ~ 4,
+    TRUE ~ 5
+  )
+  
+  # Calculate top products by export quantity
   top_products <- country_data %>%
     group_by(Product) %>%
     summarise(total_export_quantity = sum(export_quantity, na.rm = TRUE)) %>%
     arrange(desc(total_export_quantity)) %>%
-    slice_head(n = 5) %>%
+    slice_head(n = top_n) %>%
     pull(Product)
   
+  # Filter data for top products
   country_data %>%
     filter(Product %in% top_products)
 }
 
-# Apply the function for each country and then group by Pathway and Year
-top_exports <- scenathon %>%
-  group_by(alpha3) %>%
-  group_modify(~get_top_5_products(.x)) %>%
-  ungroup() %>%
+# Apply the function for each country
+top_exports <- lapply(split(scenathon, scenathon$alpha3), get_top_products) %>%
+  bind_rows()
+
+# Group by Pathway and Year
+top_exports <- top_exports %>%
   group_by(alpha3, Pathway, Year) %>%
   arrange(desc(export_quantity)) %>%
   ungroup()
-
-
 
 
 figure_directory <- here("output", "figures", "Export", paste0(gsub("-", "", Sys.Date())))

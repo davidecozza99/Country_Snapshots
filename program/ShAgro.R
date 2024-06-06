@@ -38,30 +38,30 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   
 
 
+
+
 scenathon_long <- scenathon %>%
-  tidyr::pivot_longer(cols = c(nonagroecland, agroecland), names_to = "LandType", values_to = "Value")
+  pivot_longer(cols = c(nonagroecland, agroecland), names_to = "LandType", values_to = "Value") %>%
+  group_by(alpha3, Pathway, Year) %>% 
+  mutate(Percentage = round(Value / sum(Value) * 100, 1)) %>%
+  ungroup()
 
 
 
 
 
 #Plot Pathway ---------------------------------------------------------------
+# Plot Pathway ---------------------------------------------------------------
 scenathon_long$Pathway <- factor(scenathon_long$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
-#List countries
+# List countries
 countries <- c(
-  "ARG",
-  "AUS",
-  "BRA"
-  , "CAN", "CHN", "COL","DEU",
-  "ETH"
-  ,"FIN","GBR", "IDN", "IND",
-  "MEX"
-  ,"NOR", "RUS", "RWA","SWE",  "USA",
-  "DNK",
-  "GRC","TUR", "NPL",
+  "ARG", "AUS", "BRA", "CAN", "CHN", "COL", "DEU", "ETH",
+  "FIN", "GBR", "IDN", "IND", "MEX", "NOR", "RUS", "RWA",
+  "SWE", "USA", "DNK", "GRC", "TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
+
 
 figure_directory <- here("output", "figures", "ShAgro", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
@@ -77,6 +77,7 @@ for (country in countries) {
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = as.factor(Year), y = Value, fill = LandType)) +
     geom_bar(stat = "identity", position = "stack") +
+    geom_text(aes(label = paste0(Percentage, "%")), position = position_stack(vjust = 0.5), size = 5, color = "ivory") +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(
       x = "",
@@ -88,8 +89,8 @@ for (country in countries) {
                  "NationalCommitments" = "National Commitments Pathway",
                  "GlobalSustainability" = "Global Sustainability Pathway"
                ))) +
-    scale_fill_manual(values = c("nonagroecland" = "#D5EB4B", "agroecland" = "#66BB6A"),
-                      labels = c("Cropland under conventional practises", "Cropland under agroecological practises"))+
+    scale_fill_manual(values = c("nonagroecland" = "#9ACD32", "agroecland" = "#006400"),
+                      labels = c("Cropland under conventional practices", "Cropland under agroecological practices")) +
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
@@ -99,7 +100,7 @@ for (country in countries) {
       axis.title.y = element_text(color = "black", size = 18),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
-    )  
+    )
   
   # Save the plot as a TIFF file
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
@@ -114,3 +115,7 @@ for (country in countries) {
 
 
 p_pathway
+
+
+
+
