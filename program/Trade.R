@@ -27,14 +27,145 @@ here()
 
 
 #Data -------------------------------------------------------------------
-scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>% 
-  rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>% 
+# scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>% 
+#   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>% 
+#   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
+#   filter(iteration == "5") %>% 
+#   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>% 
+#   select(alpha3,Pathway, Year, Product, kcalfeasprod, import_quantity, export_quantity) %>% 
+#   mutate(import_quantity = import_quantity/1000) %>% 
+#   mutate(export_quantity = export_quantity/1000)
+
+
+
+df <- read.csv(here("data", "240523_FullDataBase.csv")) %>% 
+  dplyr::filter(tradeajustment == "Yes")
+product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>% 
+  dplyr::filter(tradeadjustment == "Yes")
+mapping_F6 <- read_excel(here("data",  "DataForFoodFigures.xlsx"), 
+                         sheet = "prod groups map")
+
+db_scenarios <- read.csv(here("data", "240523_scenarios.csv")) %>%
+  select(pathways, country, afforestation,agricultural_land_expansion)%>% 
+  rename(ALPHA3 = country,
+         Pathway = pathways) %>% 
+  mutate(Pathway = recode(Pathway, "CurrentTrends" = "CurrentTrend")) %>% 
+  unique()
+
+fao_prod <- read.csv(here("data", "FAO_FoodBalance.csv"))
+
+
+fao_prod$Item <- ifelse(fao_prod$Item == "Rice and products", "Rice (Milled Equivalent)", 
+                        ifelse(fao_prod$Item == "Groundnuts", "Groundnuts (in Shell Eq)",
+                               ifelse(fao_prod$Item == "Vegetables, other", "Vegetables, Other",
+                                      ifelse(fao_prod$Item == "Fruits, other", "Fruits, Other",
+                                             ifelse(fao_prod$Item == "Freshwater Fish", "Fish Seafood + (Total)",
+                                                    ifelse(fao_prod$Item == "Meat, Other", "Meat Other",
+                                                           ifelse(fao_prod$Item == "Offals, Edible", "Offals Edible",
+                                                                  fao_prod$Item)))))))
+
+
+
+# mapping_animalprod <- read.csv(here("data", "FAOSTAT_mapping_animalprod.csv"))
+
+# fao_prod <- fao_prod %>% 
+#   inner_join(mapping_animalprod, by = "Item")
+
+mapping <- read_excel(here("data",  "mapping_GAMS_FAO_products.xlsx"))
+mapping[which(mapping$FAO == "Groundnuts (Shelled Eq)"), "FAO"] <- "Groundnuts"
+
+mapping_country <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx")) %>% 
+  mutate(iso3c = countrycode::countrycode(sourcevar = Country_FAO, origin = "country.name", destination = "iso3c"))
+mapping_ALPHA3 <- read_excel(here("data",  "mapping_alpha3_Country.xlsx")) %>% 
+  mutate(ALPHA3 = gsub("R_", "", ALPHA3))
+
+
+fao_prod$Area <- as.character(fao_prod$Area)
+fao_prod[which(fao_prod$Area == "United Kingdom of Great Britain and Northern Ireland"), "Area"] <- "United Kingdom"
+
+
+product_dt <- left_join(product,
+                        # rename(alpha3 = country) %>% 
+                        # mutate(alpha3 = as.character(alpha3)) %>% 
+                        # select(#-id, 
+                        #   -scenathon_id), 
+                        df,
+                        # rename(alpha3 = country) %>% 
+                        # select(#-id, 
+                        #   -scenathon_id),
+                        by = c("country", "pathway", "year")) %>% 
+  rename(ALPHA3 = country) %>% 
+  mutate(pathway = recode(pathway, "CurrentTrends" = "CurrentTrend")) %>% 
+  left_join(mapping_ALPHA3) %>% 
+  mutate(ALPHA3 = gsub("R_", "", ALPHA3)) %>% 
+  unique()
+
+
+##Compute kcal/kg data from FAO 2020
+df_fao <- fao_prod %>%
+  left_join(mapping %>% select(FPRODUCT, FAO) %>% unique(), by = c("Item" = "FAO")) %>%
+  mutate(iso3c = countrycode::countrycode(sourcevar = Area, origin = "country.name", destination = "iso3c")) %>%
+  left_join(mapping_country, by = c("iso3c")) %>%
+  left_join(mapping_ALPHA3, by = c("Country_FABLE" = "Country")) %>%
+  mutate(ALPHA3 = ifelse(Country_FABLE == "NPL", "NPL", 
+                         ifelse(Country_FABLE == "GRC", "GRC", ALPHA3))) %>% 
+  select(ALPHA3, FPRODUCT, Element, Value) 
+
+df <- df %>% 
+  rename(ALPHA3 = country) %>% 
+  rename(Pathway = pathway)
+
+product <- product %>% 
+  rename(ALPHA3 = country)
+
+
+#Computing Kcal content per Kg
+df_fao <- (df_fao %>%
+             group_by(ALPHA3, FPRODUCT, Element) %>% 
+             dplyr::summarise_at(vars(Value),
+                                 sum,
+                                 na.rm = T) %>% 
+             pivot_wider(names_from = Element,
+                         values_from = Value) %>% 
+             dplyr::rename(kg = "Food supply quantity (kg/capita/yr)",
+                           kcal = "Food supply (kcal/capita/day)") %>% 
+             mutate(kcal.kg = ifelse(kg!=0,
+                                     kcal/kg,
+                                     NA)) %>% 
+             # mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "RMECAS", ALPHA3)) %>% 
+             data.frame()) 
+
+product_df <- left_join(product_dt, df_fao, by = c("ALPHA3" = "ALPHA3", "product" = "FPRODUCT")) %>%
+  rename(Pathway = pathway)
+
+
+
+
+
+#Computing imports and exports quantity relative changes 2020-2050, using Kcal per Kg to aggregate all products
+scenathon <- product_df %>% 
+  mutate(Pathway = ifelse(Pathway == "CurrentTrend", "CurrentTrends", Pathway)) %>%
+  mutate(export_quantity = export_quantity * kcal.kg) %>% 
+  mutate(import_quantity = import_quantity * kcal.kg) %>% 
+  mutate(ALPHA3 = ifelse(ALPHA3 == "ASP", "R_ASP",
+                         ifelse(ALPHA3 == "CSA", "R_CSA",
+                                ifelse(ALPHA3 == "NEU", "R_NEU",
+                                       ifelse(ALPHA3 == "OEU", "R_OEU",
+                                              ifelse(ALPHA3 == "SSA", "R_SSA", 
+                                                     ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3))))))) %>% 
+  rename(alpha3 = ALPHA3, Year = year, Product = product) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
-  filter(iteration == "5") %>% 
   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>% 
-select(alpha3,Pathway, Year, Product, kcalfeasprod, import_quantity, export_quantity) %>% 
-  mutate(import_quantity = import_quantity/1000) %>% 
-  mutate(export_quantity = export_quantity/1000)
+  select(alpha3,Pathway, Year, Product, kcalfeasprod, import_quantity, export_quantity) %>% 
+  mutate(import_quantity = import_quantity) %>% 
+  mutate(export_quantity = export_quantity)
+
+
+
+
+
+
+
 
 
 #List countries
@@ -177,7 +308,7 @@ for (country in countries) {
                ))) +
     labs(
       x = "",
-      y = "million tonnes",
+      y = "million kcal",
       color = ""
     ) +
     scale_color_manual(values = brewer.pal(n = length(unique(country_data$Product)), name = "Set1"), 
@@ -197,7 +328,7 @@ for (country in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 20, res = 300
+    units = "in", height = 7, width = 24, res = 300
   )
   print(p_pathway)
   dev.off()
@@ -321,7 +452,7 @@ for (country in countries) {
                ))) +
     labs(
       x = "",
-      y = "million tonnes",
+      y = "million kcal",
       color = ""
     ) +
     scale_color_manual(values = brewer.pal(n = length(unique(country_data$Product)), name = "Set1"), 
@@ -341,7 +472,7 @@ for (country in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 20, res = 300
+    units = "in", height = 7, width = 24, res = 300
   )
   print(p_pathway)
   dev.off()

@@ -30,7 +30,7 @@ scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(iteration == "5") %>% 
-  # filter(Year %in% c("2020", "2030", "2050"))%>% 
+  filter(Year %in% c("2020", "2030", "2040", "2050")) %>%
   select(alpha3,Pathway, Year, Product, kcalfeasprod)
 
 mapping<- read_excel(here("data", "mapping_product_group.xlsx")) %>% 
@@ -209,7 +209,7 @@ for (country in countries) {
     geom_bar(aes(y = kcalfeasprod_productgroup, fill = PROD_GROUP), stat = "identity", position = "stack", width = 0.5) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(x="",
-      y = "Consumption (kcal)",
+      y = "Consumption (kcal/cap/day)",
       fill = ""
     ) +
     scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
@@ -222,12 +222,12 @@ for (country in countries) {
     scale_fill_manual(values = product_colors, labels = product_labels) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "Courier New", color = "black", size = 18, face = "bold"),
-      # legend.title = element_text(family = "Courier New", color = "steelblue", size = 16, face = "bold"),
-      legend.text = element_text(family = "Courier New", size = 16),
+      text = element_text(family = "sans", "black", size = 18, face = "bold"),
+      # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
+      legend.text = element_text(family = "sans", size = 18),
       # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
       axis.title.x = element_blank(),
-      axis.title.y = element_text(color = "black", size = 14),
+      axis.title.y = element_text(color = "black", size = 18),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
     ) +

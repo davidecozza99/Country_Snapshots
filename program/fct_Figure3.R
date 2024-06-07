@@ -301,6 +301,7 @@ for (ALPHA3 in countries) {
                       "Wetlands" = "#bf2cac",
                       "Forest and Grassland Conversion" = "#143b13",
                       "Settlements" = "#9ea39e",
+                      "Urea Application" = "purple",
                       "Forest Land" = "#147314",
                       "Changes in Forest and Other Woody Biomass Stocks" = "#d65a62",
                       "Abandonment of Managed Lands" = "#2563ba",
@@ -322,6 +323,7 @@ for (ALPHA3 in countries) {
                      "Wetlands" = "white",
                      "Forest and Grassland Conversion" = "white",
                      "Settlements" = "black",
+                     "Urea Application" = "white",
                      "Forest Land" = "white",
                      "Changes in Forest and Other Woody Biomass Stocks" = "white",
                      "Abandonment of Managed Lands" = "white",
@@ -344,6 +346,7 @@ for (ALPHA3 in countries) {
                       "Land-Use Change and Forestry",
                       "Prescribed Burning of Savannas",
                       "Settlements",
+                      "Urea Application",
                       "Wetlands",
                       "Other (Forest & LUC)")
   
@@ -355,7 +358,8 @@ for (ALPHA3 in countries) {
                      "Harvested Wood Products",
                      "Land-Use Change and Forestry",
                      "Prescribed Burning of Savannas",
-                     "Other (Forest & LUC)")
+                     "Other (Forest & LUC)",
+                     "Urea Application")
 
   #only keep the necessary sub categories for your country
   myColors_AFOLU <- myColors_AFOLU[unique(my_data_full[which(my_data_full$Category == "AFOLU"),"Sub.Category"])]
