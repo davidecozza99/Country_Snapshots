@@ -37,7 +37,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
 
 
 scenathon_long <- scenathon %>%
-  pivot_longer(cols = c(calccropland,calcpasture,calcforest, calcnewforest, calcotherland,calcurban,newotherland, PA), names_to = "LandType", values_to = "Value") %>%
+  pivot_longer(cols = c(calccropland,calcpasture,calcforest, calcnewforest, calcotherland,calcurban,newotherland), names_to = "LandType", values_to = "Value") %>%
   group_by(alpha3, Pathway, Year) %>% 
   mutate(Percentage = round(Value / sum(Value) * 100, 1)) %>%
   ungroup()
@@ -66,7 +66,7 @@ land_colors <- c(
   "calcforest" = "#006400",       
   "calcnewforest" = "#9ACD32",    
   "calcotherland" = "#8A2BE2",    
-  "calcurban" = "grey",        
+  "calcurban" = "pink",        
   "newotherland" = "#4682B4",     
   "totalland" = "#2E8B57"         
 )
@@ -89,20 +89,16 @@ print(figure_directory)
 # Create plot for each country
 plot_list <- list()
 
+
 for (country in countries) {
   # Subset data for the specific country
   country_data <- subset(scenathon_long, alpha3 == country)
   
- 
-   # Create ggplot for the specific country
-  p_pathway <- ggplot(country_data, aes(x = as.factor(Year), y = Value, fill = LandType)) +
-    geom_bar(stat = "identity", position = "stack") +
+  # Create ggplot for the specific country
+  p_pathway <- ggplot(country_data, aes(x = Year, y = Value, fill = LandType)) +
+    geom_area(position = "stack") +
     geom_hline(yintercept = 0, linetype = "solid") +
-    geom_text(aes(label = ifelse(Percentage > 5, paste0(Percentage, "%"), "")),
-              position = position_stack(vjust = 0.5), size = 5, color = "ivory") +
-    geom_line(aes(y = protectedareasforest, color = "Protected Areas Forest")) +
-    geom_line(aes(y = protectedareasother, color = "Protected Areas Other")) +
-    geom_line(aes(y = protectedareasothernat, color = "Protected Areas Other Nat")) +
+    geom_line(aes(y = PA, color = "Protected Areas"), size = 1.5) +  # Thicker line
     labs(
       x = "",
       y = "Mha", fill = ""
@@ -114,20 +110,21 @@ for (country in countries) {
                  "GlobalSustainability" = "Global Sustainability Pathway"
                ))) +
     scale_fill_manual(values = land_colors, labels = land_labels) +
-    scale_color_manual(values = c("Protected Areas Forest" = "red",
-                                  "Protected Areas Other" = "blue",
-                                  "Protected Areas Other Nat" = "green")) +
+    scale_color_manual(values = c("Protected Areas" = "black")) +  # New color for PA
+    scale_y_continuous(
+      sec.axis = sec_axis(~ . / max(., na.rm = TRUE) * 100, name = "%")
+    ) +
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 18),
+      legend.title = element_blank(),  # Remove the legend title
       legend.text = element_text(family = "sans", size = 18),
       axis.title.x = element_text(color = "black", size = 18),
       axis.title.y = element_text(color = "black", size = 18),
+      axis.title.y.right = element_text(color = "black", size = 18),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
     )
-  
   
   # Save the plot as a TIFF file
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
@@ -137,12 +134,5 @@ for (country in countries) {
   )
   print(p_pathway)
   dev.off()
-  
 }
-
-
-p_pathway
-
-
-
 

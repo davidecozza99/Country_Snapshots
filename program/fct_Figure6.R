@@ -266,9 +266,9 @@ for (ALPHA3 in countries) {
   
 
 
-  cat.labs <- c(CurrentTrends = paste0("Current Trends\n2050\n", CT_kcal_tot, "kcal/cap/day"),
-                NationalCommitments = paste0("National Commitments\n2050\n", NC_kcal_tot, "kcal/cap/day"),
-                GlobalSustainability = paste0("Global Sustainability\n2050\n", GS_kcal_tot, "kcal/cap/day")
+  cat.labs <- c(CurrentTrends = paste0("Current Trends\n2050\n", CT_kcal_tot, " kcal/cap/day"),
+                NationalCommitments = paste0("National Commitments\n2050\n", NC_kcal_tot, " kcal/cap/day"),
+                GlobalSustainability = paste0("Global Sustainability\n2050\n", GS_kcal_tot, " kcal/cap/day")
   )
   
   myLinetype <- c("dashed", "dotted", "solid")

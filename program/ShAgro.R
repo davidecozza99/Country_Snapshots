@@ -30,7 +30,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   rename(alpha3 = country, Pathway = pathway, Year = year) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(iteration == "5") %>% 
-  # filter(Year %in% c("2020", "2030", "2050"))%>% 
+  filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
   select(alpha3,Pathway, Year, agroecosh, calccropland) %>% 
   mutate(agroecland = agroecosh*calccropland/1000 ) %>% 
   mutate(nonagroecland = (1-agroecosh)*calccropland/1000) %>% 
