@@ -58,7 +58,7 @@ print(figure_directory)
 for (country in countries) {
   
   country_data <- subset(scenathon, country == country)
-  
+  print(summary(country_data))
   # Create plot for the specific country
   p_N <- ggplot(country_data, aes(x = as.factor(pathway_id))) +
     geom_bar(aes(y = value/1000, fill = type), stat = "identity", position = "stack", width = 0.8) +
