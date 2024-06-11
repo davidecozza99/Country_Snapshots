@@ -55,10 +55,10 @@ print(figure_directory)
 
 # Loop for each country
 
-for (country in countries) {
+for (cur_country in countries) {
   
-  country_data <- subset(scenathon, country == country)
-  
+  country_data <- subset(scenathon, country == cur_country)
+  print(summary(country_data))
   # Create plot for the specific country
   p_N <- ggplot(country_data, aes(x = as.factor(pathway_id))) +
     geom_bar(aes(y = value/1000, fill = type), stat = "identity", position = "stack", width = 0.8) +
@@ -91,11 +91,11 @@ for (country in countries) {
     guides(fill = guide_legend(nrow = 3))
   
   # Save the plot as a TIFF file
-  # filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".tiff")
-  # tiff(
-  #   filename = here(figure_directory, filename),
-  #   units = "in", height = 7, width = 24, res = 300)
+  filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
+  tiff(
+    filename = here(figure_directory, filename),
+    units = "in", height = 7, width = 24, res = 300)
   print(p_N)
-  #dev.off()
+  dev.off()
   
 }
