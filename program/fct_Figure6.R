@@ -97,7 +97,7 @@ FOOD_missing <- FOOD_missing %>%
 
 
 # Define the output directory
-figure_directory <- here("output", "figures", "figure6", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig2", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
