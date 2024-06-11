@@ -17,6 +17,7 @@ library(stats)
 library(zoo)
 library(cluster) 
 library(factoextra)
+library(scales)
 
 conflicted::conflict_prefer("rename", "dplyr")
 conflicted::conflict_prefer("mutate", "dplyr")
@@ -63,8 +64,8 @@ print(figure_directory)
 plot_list <- list()
 
 pathway_colors <- c("CurrentTrends" = "#76c4c4", "NationalCommitments" = "#B22222", "GlobalSustainability" = "#FFCB52")
+pathway_labels <- c("CurrentTrends" = "Current Trends", "NationalCommitments" = "National Commitments", "GlobalSustainability" = "Global Sustainability")
 
-# Get unique countries
 countries <- unique(scenathon$alpha3)
 
 # Loop over countries
@@ -74,14 +75,21 @@ for (country in countries) {
   
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = Year, y = agroecosh, color = Pathway)) +
-    geom_line() +
+    geom_line(size = 1.2) + 
     labs(
       x = "Year",
-      y = "Agroecosh",
-      color = "Pathway",
-      title = paste("Agroecosh by Year and Pathway -", country)
+      y = "% of Cropland",
+      color = ""
+      # linetype = "Pathway"
     ) +
-    scale_color_manual(values = pathway_colors) +
+    scale_color_manual(values = pathway_colors, labels = pathway_labels) +
+    # scale_linetype_manual(values = c("CurrentTrends" = "solid", "NationalCommitments" = "dashed", "GlobalSustainability" = "dotdash")) +  
+    scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +  
+    # guides(
+    #   color = guide_legend(title = "Pathway"),
+    #   linetype = guide_legend(title = "Pathway"),
+    #   override.aes = list(linetype = c("solid", "dashed", "dotdash"))
+    # ) +      
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 10, face = "bold"),
