@@ -369,9 +369,18 @@ for (ALPHA3 in countries) {
           strip.placement = "outside",
           plot.margin = margin(t = -10, b= -20))
   
-  p <- plot_grid(p, p_legend_rec, p_legend_food,
-                 nrow = 3, rel_heights = c(1.2, 0.1, 0.30))
+  # p <- plot_grid(p, p_legend_rec, p_legend_food,
+  #                nrow = 3, rel_heights = c(1.2, 0.1, 0.30))
   
+  p <- plot_grid(
+    p, 
+    plot_grid(p_legend_rec, p_legend_food, nrow = 2, rel_heights = c(0.05, 0.95)),
+    nrow = 1,
+    rel_heights = c(1, 0.5),  
+    rel_widths = c(3, 1) 
+  )
+  
+  p
   
   # Save the plot as TIFF file
   # filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
