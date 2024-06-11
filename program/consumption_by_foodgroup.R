@@ -30,8 +30,8 @@ scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(iteration == "5") %>% 
-  filter(Year %in% c("2020", "2030", "2040", "2050")) %>%
-  select(alpha3,Pathway, Year, Product, kcalfeasprod)
+  filter(!Year %in% c("2000", "2005", "2010", "2015")) %>% 
+select(alpha3,Pathway, Year, Product, kcalfeasprod)
 
 mapping<- read_excel(here("data", "mapping_product_group.xlsx")) %>% 
   rename(Product = PRODUCT)
@@ -45,6 +45,7 @@ consumption <- scenathon %>%
   mutate(total_kcal = sum(kcalfeasprod)) %>% 
   ungroup() %>%
   select(-Product, -kcalfeasprod) %>%
+  filter(!PROD_GROUP %in% c("FIBERINDUS", "OLSCAKE")) %>% 
   # filter(alpha3 == country) %>%
   unique %>% 
   drop_na()
@@ -143,14 +144,12 @@ consumption$Pathway <- factor(consumption$Pathway, levels = c("CurrentTrends", "
 
 
 product_colors <- c(
-  "BEVSPICES" = "#8B0000",    
+  "BEVSPICES" = "darkgrey",    
   "CEREALS" = "#FFD700",      
   "EGGS" = "#00008B",         
-  "FIBERINDUS" = "#8B4513",   
   "FRUVEG" = "#8A2BE2",        
   "MILK" = "#006400",         
   "NUTS" = "#8FBC8F",          
-  "OLSCAKE" = "#A52A2A",      
   "OLSOIL" = "steelblue",        
   "PORK" = "#DC143C",         
   "POULTRY" = "#4B0082",
@@ -159,23 +158,21 @@ product_colors <- c(
   "ROOTS" = "#DAA520",        
   "SUGAR" = "#FF4500"       
 )
-
+#8B4513
 product_labels <- c(
-  "BEVSPICES" = "Beverages and Spices",
+  "BEVSPICES" = "Beverages /nand Spices",
   "CEREALS" = "Cereals",
   "EGGS" = "Eggs",
-  "FIBERINDUS" ="Fiber and Industrial Crops",
-  "FRUVEG" = "Fruits & Vegetables",
+  "FRUVEG" = "Fruits and /nVegetables",
   "MILK" ="Milk",
   "NUTS" = "Nuts",
-  "OLSCAKE" = "Oil Cakes",
-  "OLSOIL" = "Oilseeds and veg. oils",
+  "OLSOIL" = "Oilseeds and /nVeg. Oils",
   "PORK" = "Pork",
   "POULTRY" = "Poultry",
   "PULSES" = "Pulses",
-  "REDMEAT" = "Beef, Goat & Lambs",
-  "ROOTS" = "Roots and Tubers",
-  "SUGAR" ="Sugar and Sugar Crops"
+  "REDMEAT" = "Beef, Goat /nand Lambs",
+  "ROOTS" = "Roots and /nTubers",
+  "SUGAR" ="Sugar and /nSugar Crops"
 )
 
 #List countries
@@ -195,9 +192,10 @@ countries <- c(
 
 
 
-figure_directory <- here("output", "figures", "consum_foodgroup", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig1", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
+
 # Loop for each country
 
 for (country in countries) {
@@ -206,7 +204,7 @@ for (country in countries) {
   
   # Create plot for the specific country
   p_consumption <- ggplot(country_data, aes(x = as.factor(Year))) +
-    geom_bar(aes(y = kcalfeasprod_productgroup, fill = PROD_GROUP), stat = "identity", position = "stack", width = 0.5) +
+    geom_bar(aes(y = kcalfeasprod_productgroup, fill = PROD_GROUP), stat = "identity", position = "stack", width = 0.6) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(x="",
       y = "Consumption (kcal/cap/day)",
@@ -215,31 +213,30 @@ for (country in countries) {
     scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
     facet_grid(. ~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
-                 "CurrentTrends" = "Current Trend Pathway",
-                 "NationalCommitments" = "National Commitments Pathway",
-                 "GlobalSustainability" = "Global Sustainability Pathway"
+                 "CurrentTrends" = "Current Trends",
+                 "NationalCommitments" = "National Commitments",
+                 "GlobalSustainability" = "Global Sustainability"
                ))) +
     scale_fill_manual(values = product_colors, labels = product_labels) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", "black", size = 18, face = "bold"),
-      # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
+      text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 18),
       legend.text = element_text(family = "sans", size = 18),
-      # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
-      axis.title.x = element_blank(),
+      axis.title.x = element_text(color = "black", size = 18),
       axis.title.y = element_text(color = "black", size = 18),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
     ) +
 
-  guides(fill = guide_legend(nrow = 3))
+  guides(fill = guide_legend(nrow = 1))
   
   # Save the plot as a TIFF file
 filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
 tiff(
   filename = here(figure_directory, filename),
-  units = "in", height = 7, width = 24, res = 300)
-print(p_consumption)
+  units = "in", height = 10, width = 20, res = 300)
+  print(p_consumption)
 dev.off()
 
 }

@@ -24,7 +24,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   rename(alpha3 = country, Year = year) %>% 
   mutate(pathway = recode(pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(tradeajustment == "Yes") %>%
-  filter(!Year %in% c("2000", "2005", "2010")) %>% 
+  # filter(!Year %in% c("2000", "2005", "2010")) %>% 
   rename(calcpeatco2 = calcsequestco3) %>% 
   select(alpha3, pathway, Year, calccropn2o, calccropch4, calccropco2, calcliven2o, calclivech4, 
          ghgbiofuels,
@@ -87,24 +87,22 @@ df_long <- df_long %>%
 
 #Preparing aesthetic for the plot ----------------------------------------------
 
-gas_colors <- c("N2O_crop" = "#943F3F", "N2O_live" = "#FF0000",
-                "CH4_crop" = "#D9AB2B", "CH4_live" = "#FFCB52",
-                "CO2_crop" = "green", "CO2_def" = "#0CA48D",
-                "CO2_other" ="#D5E59E","CO2_peat" = "#D5EB4B",
+gas_colors <- c("CH4_live" = "#943F3F", "N2O_live" = "#FF0000",
+                "CH4_crop" = "#D9AB2B", "N2O_crop" = "#FFCB52",
+                "CO2_crop" = "#D5E59E", "CO2_def" = "#0CA48D",
+                "CO2_other" ="green","CO2_peat" = "#8A2BE2",
                 "CO2_aband" = "#66BB6A",
                 "CO2_affor" = "#1B5E20",
                 "CO2_bio"= "grey"
 )
-#F2C14E
+
 
 gas_labels <- c(
-  "N2O_live" = "N2O (Livestock)", "N2O_crop" = "N2O (Crop)", 
-  "CH4_live" = "CH4 (Livestock)", "CH4_crop" = "CH4 (Crop)",
-  "CO2_crop" = "CO2 (Crop)",
-  "CO2_def" = "CO2 (Deforestation)", "CO2_other" ="CO2 (Other Land Use)",
-  "CO2_peat" = "CO2 (Peatland)",
-  "CO2_aband" = "CO2 (Abandoned Agr. Land)", "CO2_affor" = "CO2 (Afforestation)", 
-  "CO2_bio" ="Savings from Biofuels")
+  "N2O_live" = "N2O Livestock", "CH4_live" = "CH4 Livestock",
+  "N2O_crop" = "N2O Crop",  "CH4_crop" = "CH4 Crop", "CO2_crop" = "CO2 on farm",
+  "CO2_def" = "CO2 Deforestation", "CO2_other" ="CO2 Other Land Use",
+  "CO2_aband" = "CO2 Abandoned Agr. Land", "CO2_affor" = "CO2 Afforestation", 
+  "CO2_peat" = "CO2 Peatland", "CO2_bio" ="Savings from Biofuels")
 
 # 
 # gas_colors <- c(
@@ -132,13 +130,12 @@ gas_labels <- c(
 #   )
 
 df_long$Gas <- factor(df_long$Gas, levels = c(
-  "N2O_live", "N2O_crop",
-  "CH4_live","CH4_crop", 
-  "CO2_crop",
+  "N2O_live", "CH4_live", 
+  "N2O_crop","CH4_crop", "CO2_crop",
   "CO2_def", 
-  "CO2_other", "CO2_peat",
+  "CO2_other", 
   "CO2_aband",   
-  "CO2_affor",
+  "CO2_affor","CO2_peat",
   "CO2_bio"   
 ))
 
@@ -154,7 +151,7 @@ df_long$pathway <- factor(df_long$pathway, levels = c("CurrentTrends", "National
 # 
 # df_long_agri <- df_long %>% 
 #   filter((Gas %in% c("N2O_crop", "N2O_live","CH4_crop", "CH4_live","CO2_crop")))
-figure_directory <- here("output", "figures", "AFOLU_emissions", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig5", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -184,13 +181,13 @@ for (country in countries) {
   p <- ggplot(country_data, aes(x = Year, y = Emission, fill = Gas)) +
     geom_area() +
     labs(
-      x = "", y = expression("Mt" ~ CO[2] ~ "e"), fill = "")+
+      x = "", y = "MtCO2e", fill = "")+
     scale_fill_manual(values = gas_colors, labels = gas_labels, breaks = names(gas_labels)) +
     # scale_y_continuous(breaks = seq(-10, 20, by = 5)) +
     facet_grid(. ~ pathway, scales = "free_y",
-               labeller = labeller(pathway = c("CurrentTrends" = "Current Trend Pathway",
-                                               "NationalCommitments" = "National Commitments Pathway",
-                                               "GlobalSustainability" = "Global Sustainability Pathway"))) +
+               labeller = labeller(pathway = c("CurrentTrends" = "Current Trends",
+                                               "NationalCommitments" = "National Commitments",
+                                               "GlobalSustainability" = "Global Sustainability"))) +
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 24, face = "bold"),

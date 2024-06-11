@@ -141,7 +141,6 @@ product_df <- left_join(product_dt, df_fao, by = c("ALPHA3" = "ALPHA3", "product
 
 
 
-
 #Computing imports and exports quantity relative changes 2020-2050, using Kcal per Kg to aggregate all products
 scenathon <- product_df %>% 
   mutate(Pathway = ifelse(Pathway == "CurrentTrend", "CurrentTrends", Pathway)) %>%
@@ -157,8 +156,8 @@ scenathon <- product_df %>%
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>% 
   select(alpha3,Pathway, Year, Product, kcalfeasprod, import_quantity, export_quantity) %>% 
-  mutate(import_quantity = import_quantity) %>% 
-  mutate(export_quantity = export_quantity)
+  mutate(import_quantity = import_quantity/1000) %>%
+  mutate(export_quantity = export_quantity/1000)
 
 
 
@@ -299,7 +298,7 @@ for (country in countries) {
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = Year, y = export_quantity, color = Product)) +
     geom_point(size = 2) +  # Use points to show each year
-    geom_line(size = 1.2, aes(group = Product))+
+    geom_line(size = 1.2, aes(group = Product)) +
     facet_wrap(~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
                  "CurrentTrends" = "Current Trend Pathway",
@@ -308,7 +307,7 @@ for (country in countries) {
                ))) +
     labs(
       x = "",
-      y = "million kcal",
+      y = "billion kcal",
       color = ""
     ) +
     scale_color_manual(values = brewer.pal(n = length(unique(country_data$Product)), name = "Set1"), 
@@ -452,7 +451,7 @@ for (country in countries) {
                ))) +
     labs(
       x = "",
-      y = "million kcal",
+      y = "billion kcal",
       color = ""
     ) +
     scale_color_manual(values = brewer.pal(n = length(unique(country_data$Product)), name = "Set1"), 

@@ -31,7 +31,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   filter(iteration == "5") %>% 
   select(alpha3, Pathway, Year, calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, protectedareasforest, protectedareasother, protectedareasothernat ) %>%
   mutate(PA =protectedareasforest + protectedareasother + protectedareasothernat) %>% 
-  filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
+  # filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
   mutate(across(c(calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, PA), ~ . / 1000)) %>% 
   select(-protectedareasforest,- protectedareasother, -protectedareasothernat)
 
@@ -65,9 +65,9 @@ land_colors <- c(
   "calcpasture" = "#FF4500",      
   "calcforest" = "#006400",       
   "calcnewforest" = "#9ACD32",    
-  "calcotherland" = "#8A2BE2",    
+  "calcotherland" = "#2563ba",    
   "calcurban" = "pink",        
-  "newotherland" = "#4682B4",     
+  "newotherland" = "#76c4c4",     
   "totalland" = "#2E8B57"         
 )
 #FFD700
@@ -82,10 +82,15 @@ land_labels <- c(
   "totalland" = "Total Land"
   )
 
-figure_directory <- here("output", "figures", "Land", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig4", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
+
+
+percent_labels <- function(x) {
+  paste0(formatC(x, format = "f", digits = 0), " %")
+}
 # Create plot for each country
 plot_list <- list()
 
@@ -98,21 +103,21 @@ for (country in countries) {
   p_pathway <- ggplot(country_data, aes(x = Year, y = Value, fill = LandType)) +
     geom_area(position = "stack") +
     geom_hline(yintercept = 0, linetype = "solid") +
-    geom_line(aes(y = PA, color = "Protected Areas"), size = 1.5) +  # Thicker line
+geom_line(aes(y = PA, color = "Protected Areas"), linetype = "dashed", size = 2) + 
     labs(
       x = "",
       y = "Mha", fill = ""
     ) +
     facet_grid(. ~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
-                 "CurrentTrends" = "Current Trend Pathway",
-                 "NationalCommitments" = "National Commitments Pathway",
-                 "GlobalSustainability" = "Global Sustainability Pathway"
+                 "CurrentTrends" = "Current Trend",
+                 "NationalCommitments" = "National Commitments",
+                 "GlobalSustainability" = "Global Sustainability"
                ))) +
     scale_fill_manual(values = land_colors, labels = land_labels) +
-    scale_color_manual(values = c("Protected Areas" = "black")) +  # New color for PA
+    scale_color_manual(values = c("Protected Areas" = "ivory")) + 
     scale_y_continuous(
-      sec.axis = sec_axis(~ . / max(., na.rm = TRUE) * 100, name = "%")
+      sec.axis = sec_axis(~ . / max(., na.rm = TRUE) * 100, name = "% total land", labels = percent_labels)
     ) +
     theme_minimal() +
     theme(
