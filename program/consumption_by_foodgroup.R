@@ -160,19 +160,19 @@ product_colors <- c(
 )
 #8B4513
 product_labels <- c(
-  "BEVSPICES" = "Beverages /nand Spices",
+  "BEVSPICES" = "Beverages and Spices",
   "CEREALS" = "Cereals",
   "EGGS" = "Eggs",
-  "FRUVEG" = "Fruits and /nVegetables",
+  "FRUVEG" = "Fruits and Vegetables",
   "MILK" ="Milk",
   "NUTS" = "Nuts",
-  "OLSOIL" = "Oilseeds and /nVeg. Oils",
+  "OLSOIL" = "Oilseeds and Veg. Oils",
   "PORK" = "Pork",
   "POULTRY" = "Poultry",
   "PULSES" = "Pulses",
-  "REDMEAT" = "Beef, Goat /nand Lambs",
-  "ROOTS" = "Roots and /nTubers",
-  "SUGAR" ="Sugar and /nSugar Crops"
+  "REDMEAT" = "Beef, Goat and Lambs",
+  "ROOTS" = "Roots and Tubers",
+  "SUGAR" ="Sugar and Sugar Crops"
 )
 
 #List countries
@@ -220,16 +220,17 @@ for (country in countries) {
     scale_fill_manual(values = product_colors, labels = product_labels) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
+      text = element_text(family = "sans", color = "black", size = 28, face = "bold"),
       legend.title = element_text(family = "sans", color = "black", size = 18),
-      legend.text = element_text(family = "sans", size = 18),
-      axis.title.x = element_text(color = "black", size = 18),
-      axis.title.y = element_text(color = "black", size = 18),
+      legend.text = element_text(family = "sans", size = 20),
+      axis.title.x = element_text(color = "black", size = 20),
+      axis.title.y = element_text(color = "black", size = 20),
       legend.position = "bottom",
+      legend.spacing.x = unit(3, "cm"),
       panel.spacing = unit(2, "cm")
     ) +
 
-  guides(fill = guide_legend(nrow = 1))
+  guides(fill = guide_legend(nrow = 2))
   
   # Save the plot as a TIFF file
 filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
@@ -240,3 +241,4 @@ tiff(
 dev.off()
 
 }
+
