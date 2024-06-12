@@ -25,41 +25,43 @@ conflicts_prefer(dplyr::filter)
 here()
 
 
-mapping_alpha3_Country <- read_excel(here("data","mapping_alpha3_Country.xlsx"))
-mapping_country_FAO_FABLE <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx"))
+# mapping_alpha3_Country <- read_excel(here("data","mapping_alpha3_Country.xlsx"))
+# mapping_country_FAO_FABLE <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx"))
+# 
+# FAOSTAT_FoodSupply_Other <- read_csv(here("data", "240523_FAOSTAT_FoodSupply_Other.csv")) %>% 
+#   select(Area, Item, Year, Value) %>% 
+#   left_join(mapping_country_FAO_FABLE, by = c("Area" = "Country_FAO")) %>% 
+#   left_join(mapping_alpha3_Country, by = c("Country_FABLE" = "Country")) %>% 
+#   mutate(ALPHA3 = ifelse(Country_FABLE == "GRC", "GRC", 
+#                          ifelse(Country_FABLE == "NPL", "NPL",
+#                          ALPHA3))) %>% 
+# drop_na() %>% 
+#   select(-Country_FABLE)
+# 
+# FAOSTAT_FoodSupply_Other_wide <- FAOSTAT_FoodSupply_Other %>%
+#   pivot_wider(names_from = Item, values_from = Value)
+# 
+# 
+# 
+# database <- FAOSTAT_FoodSupply_Other_wide %>% 
+#   group_by(Year, ALPHA3) %>% 
+#   mutate(pop_tot = sum(Population, na.rm = TRUE)) %>% 
+#   ungroup() %>% 
+#   group_by(Year) %>% 
+#   mutate(offals = Population / pop_tot * `Offals, Edible`) %>% 
+#   mutate(fish = Population / pop_tot * `Fish, Seafood`) %>% 
+#   group_by(Year, ALPHA3) %>% 
+#   mutate(offals_tot = sum(offals)) %>% 
+#   mutate(fish_total = sum(fish)) %>% 
+#   ungroup() %>% 
+#   select(ALPHA3, Year, offals_tot, fish_total) %>% 
+#   unique() %>% 
+#   mutate(OTHER =offals_tot+fish_total)
+# 
+# write.xlsx(database, file = here("data", paste0(gsub("-", "",Sys.Date()), "_","OTHER.xlsx")))
 
-FAOSTAT_FoodSupply_Other <- read_csv(here("data", "240523_FAOSTAT_FoodSupply_Other.csv")) %>% 
-  select(Area, Item, Year, Value) %>% 
-  left_join(mapping_country_FAO_FABLE, by = c("Area" = "Country_FAO")) %>% 
-  left_join(mapping_alpha3_Country, by = c("Country_FABLE" = "Country")) %>% 
-  mutate(ALPHA3 = ifelse(Country_FABLE == "GRC", "GRC", 
-                         ifelse(Country_FABLE == "NPL", "NPL",
-                         ALPHA3))) %>% 
-drop_na() %>% 
-  select(-Country_FABLE)
 
-FAOSTAT_FoodSupply_Other_wide <- FAOSTAT_FoodSupply_Other %>%
-  pivot_wider(names_from = Item, values_from = Value)
-
-
-
-database <- FAOSTAT_FoodSupply_Other_wide %>% 
-  group_by(Year, ALPHA3) %>% 
-  mutate(pop_tot = sum(Population, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  group_by(Year) %>% 
-  mutate(offals = Population / pop_tot * `Offals, Edible`) %>% 
-  mutate(fish = Population / pop_tot * `Fish, Seafood`) %>% 
-  group_by(Year, ALPHA3) %>% 
-  mutate(offals_tot = sum(offals)) %>% 
-  mutate(fish_total = sum(fish)) %>% 
-  ungroup() %>% 
-  select(mmmmmmmmmmmmmmmmmmm)
-
-
-
-
-
+OTHER <- read_excel(here("data", "20240612_OTHER.xlsx"))
 
 
 #Data -------------------------------------------------------------------
@@ -105,6 +107,7 @@ missfood_regions <- read_excel(here("data","20240612_missfood_regions_long.xlsx"
 consumption <- read_excel(here("data", "20240612_consumption.xlsx")) %>% 
   select(-total_kcal)%>% 
   rbind(missfood_regions) %>% 
+  rbind(OTHER) %>% 
   group_by(Pathway, alpha3, Year) %>% 
   mutate(total_kcal = sum(kcalfeasprod_productgroup)) %>% 
   ungroup()
@@ -217,9 +220,10 @@ product_colors <- c(
   "ROOTS" = "#DAA520",        
   "SUGAR" = "#FF4500",
   "ALCOHOL" = "#1E90FF",
-  "ANIMFAT" = "#A0522D"
+  "ANIMFAT" = "#A0522D",
+  "OTHER"="#00CED1"
 )
-#8B4513
+
 product_labels <- c(
   "BEVSPICES" = "Beverages and Spices",
   "CEREALS" = "Cereals",
@@ -235,7 +239,8 @@ product_labels <- c(
   "ROOTS" = "Roots and Tubers",
   "SUGAR" ="Sugar and Sugar Crops",
   "ALCOHOL" = "Alcohol",
-  "ANIMFAT" = "Animal Fat"
+  "ANIMFAT" = "Animal Fat",
+  "OTHER" = "Other"
 )
 
 #List countries
@@ -255,7 +260,7 @@ countries <- c(
 
 
 
-figure_directory <- here("output", "figures", "fig1", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig4_diet", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
