@@ -88,57 +88,127 @@ figure_directory <- here("output", "figures", "Figure10_CroplandComposition")
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
-# Loop for each country
-
-for (cur_country in countries) {
-  
-  country_data <- df_planted %>% 
-    filter(country == cur_country)
-  
-  # Create plot for the specific country
-  p_crop <- ggplot(country_data, aes(x = as.factor(pathway_id))) +
-    geom_bar(aes(y = feasplantarea, fill = product), stat = "identity", position = "stack", width = 0.8) +
-    geom_hline(yintercept = 0, linetype = "solid") +
-    labs(x="",
-         y = "Cropland composition (1000 ha)",
-         fill = ""
-    ) +
-    #scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
-    facet_grid(. ~ year, scales = "free_y"#,
-               # labeller = labeller(pathway = c(
-               #   "CurrentTrends" = "Current Trend",
-               #   "NationalCommitments" = "National Commitments",
-               #   "GlobalSustainability" = "Global Sustainability"
-               #))
-) +
-    #scale_fill_manual(values = product_colors, labels = product_labels) +  
-    theme_minimal() +
-    theme(
-      text = element_text(family = "sans", "black", size = 18, face = "bold"),
-      # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
-      legend.text = element_text(family = "sans", size = 18),
-      # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
-      axis.title.x = element_blank(),
-      axis.title.y = element_text(color = "black", size = 18),
-      legend.position = "bottom",
-      panel.spacing = unit(2, "cm")
-    ) +
-    
-    guides(fill = guide_legend(nrow = 3))
-  
-  # Save the plot as a TIFF file
-  # filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".tiff")
-  # tiff(
-  #   filename = here(figure_directory, filename),
-  #   units = "in", height = 7, width = 24, res = 300)
-  print(p_crop)
-  #dev.off()
-  
-}
+# # Loop for each country
+# 
+# for (cur_country in countries) {
+#   
+#   country_data <- df_planted %>% 
+#     filter(country == cur_country)
+#   
+#   # Create plot for the specific country
+#   p_crop <- ggplot(country_data, aes(x = as.factor(pathway_id))) +
+#     geom_bar(aes(y = feasplantarea, fill = product), stat = "identity", position = "stack", width = 0.8) +
+#     geom_hline(yintercept = 0, linetype = "solid") +
+#     labs(x="",
+#          y = "Cropland composition (1000 ha)",
+#          fill = ""
+#     ) +
+#     #scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
+#     facet_grid(. ~ year, scales = "free_y"#,
+#                # labeller = labeller(pathway = c(
+#                #   "CurrentTrends" = "Current Trend",
+#                #   "NationalCommitments" = "National Commitments",
+#                #   "GlobalSustainability" = "Global Sustainability"
+#                #))
+# ) +
+#     #scale_fill_manual(values = product_colors, labels = product_labels) +  
+#     theme_minimal() +
+#     theme(
+#       text = element_text(family = "sans", "black", size = 18, face = "bold"),
+#       # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
+#       legend.text = element_text(family = "sans", size = 18),
+#       # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
+#       axis.title.x = element_blank(),
+#       axis.title.y = element_text(color = "black", size = 18),
+#       legend.position = "bottom",
+#       panel.spacing = unit(2, "cm")
+#     ) +
+#     
+#     guides(fill = guide_legend(nrow = 3))
+#   
+#   # Save the plot as a TIFF file
+#   # filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".tiff")
+#   # tiff(
+#   #   filename = here(figure_directory, filename),
+#   #   units = "in", height = 7, width = 24, res = 300)
+#   print(p_crop)
+#   #dev.off()
+#   
+# }
 
 
 
 ##### other figure proposition
+
+
+## labels
+
+crops_labels <- c(
+  "palmkernelcake" = "Palm kernel cake",
+  "soyabean" = "Soyabean",
+  "corn" = "Corn",
+  "wheat" = "Wheat",
+  "soycake" = "Soy cake",
+  "palm_oil" = "Palm oil",
+  "oilpalmfruit" = "Oil palm fruit",
+  "sugarraw" = "Sugar raw",
+  "rice" = "Rice",
+  "cassava" = "Cassava",
+  "banana" = "Banana",
+  "rapeseed" = "Rapeseed",
+  "soyoil" = "Soy oil",
+  "barley" = "Barley",
+  "orange" = "Orange",
+  "nuts" = "Nuts",
+  "sunfloil" = "Sunflower oil",
+  "fruit_other" = "Other fruits",
+  "vegetable_other" = "Other vegetables",
+  "tomato" = "Tomato",
+  "rubber" = "Rubber",
+  "sorghum" = "Sorghum",
+  "palmkerneloil" = "Palm kernel oil",
+  "millet" = "Millet",
+  "peas" = "Peas",
+  "rapecake" = "Rape cake",
+  "apple" = "Apple",
+  "pork" = "Pork",
+  "cocoa" = "Cocoa",
+  "cotton" = "Cotton",
+  "potato" = "Potato",
+  "pinapple" = "Pineapple",
+  "groundnutcake" = "Groundnut cake",
+  "coconut" = "Coconut",
+  "pulses_other" = "Other pulses",
+  "milk" = "Milk",
+  "sunflower" = "Sunflower",
+  "date" = "Date",
+  "grape" = "Grape",
+  "onion" = "Onion",
+  "coffee" = "Coffee",
+  "lemon" = "Lemon",
+  "sesame" = "Sesame",
+  "sweet_potato" = "Sweet Potato",
+  "spices_other" = "Other spices",
+  "other_oil" = "Other oil",
+  "oats" = "Oats",
+  "oilseed_other" = "Other oilseeds",
+  "rapeoil" = "Rapeseed oil",
+  "oliveoil" = "Olive oil",
+  "olive" = "Olive",
+  "beans" = "Beans",
+  "plantain" = "Plantain",
+  "rye" = "Rye",
+  "tea" = "Tea",
+  "mutton_goat" = "Mutton/goat",
+  "lentil" = "Lentil",
+  "other_olscake" = "Other oilseed cakes",
+  "cereal_other" = "Other cereals",
+  "eggs" = "Eggs",
+  "pepper" = "Pepper",
+  "haysilage" = "Haysilage",
+  "sugarcane" = "Sugarcane"
+)
+
 
 for (cur_country in countries) {
   
@@ -165,7 +235,8 @@ for (cur_country in countries) {
                  "GS" = "Global\nSustainability"
                ))
     ) +
-    scale_fill_manual(values = c("orange", "yellow", "brown", "green", "maroon", "grey")) +  
+    scale_fill_manual(values = c("orange", "yellow", "brown", "green", "maroon", "grey"),
+                      labels = crops_labels) +  
     theme_minimal() +
     theme(
       text = element_text(family = "sans", "black", size = 18, face = "bold"),
