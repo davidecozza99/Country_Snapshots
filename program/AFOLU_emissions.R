@@ -99,7 +99,7 @@ gas_colors <- c("CH4_live" = "#943F3F", "N2O_live" = "#FF0000",
 
 gas_labels <- c(
   "N2O_live" = "N2O Livestock", "CH4_live" = "CH4 Livestock",
-  "N2O_crop" = "N2O Crop",  "CH4_crop" = "CH4 Crop", "CO2_crop" = "CO2 on farm",
+  "N2O_crop" = "N2O Crop",  "CH4_crop" = "CH4 Crop", "CO2_crop" = "CO2 from Farm",
   "CO2_def" = "CO2 Deforestation", "CO2_other" ="CO2 Other Land Use",
   "CO2_aband" = "CO2 Abandoned Agr. Land", "CO2_affor" = "CO2 Afforestation", 
   "CO2_peat" = "CO2 Peatland", "CO2_bio" ="Savings from Biofuels")
@@ -151,7 +151,7 @@ df_long$pathway <- factor(df_long$pathway, levels = c("CurrentTrends", "National
 # 
 # df_long_agri <- df_long %>% 
 #   filter((Gas %in% c("N2O_crop", "N2O_live","CH4_crop", "CH4_live","CO2_crop")))
-figure_directory <- here("output", "figures", "fig5", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig8_ghg", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -190,21 +190,25 @@ for (country in countries) {
                                                "GlobalSustainability" = "Global Sustainability"))) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 30, face = "bold"),
-      legend.text = element_text(family = "sans", size = 24),
-      axis.title.x = element_text(color = "black", size = 24),
-      axis.title.y = element_text(color = "black", size = 24),
-      axis.title.y.right = element_text(color = "black", size = 24),
+      text = element_text(family = "sans", color = "black", size = 58, face = "bold"),
+      legend.text = element_text(family = "sans", size = 42),
+      axis.title.x = element_text(color = "black", size = 38),
+      axis.text.x = element_text(color = "black", size = 32),
+      axis.title.y = element_text(color = "black", size = 38),
+      axis.text.y = element_text(color = "black", size = 32),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
     )  +
-    guides(fill = guide_legend(nrow = 2))
+  guides(
+    fill = guide_legend(override.aes = list(size = 10), keyheight = unit(2, "cm"), keywidth = unit(2, "cm")),
+    color = guide_legend(override.aes = list(size = 10))
+  )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 24, res = 300
+    units = "in", height = 16, width = 32, res = 300
   )
   print(p)
   dev.off()

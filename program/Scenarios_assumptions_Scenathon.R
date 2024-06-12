@@ -1479,24 +1479,24 @@ create_plot <- function(data, alpha3) {
       axis.ticks.y = element_blank(),
       legend.background = element_blank(),
       legend.key = element_rect(fill = NA),
-      legend.text = element_text(size = 16),
-      strip.text = element_text(size = 20, face = "bold"),
+      legend.text = element_text(size = 20),
+      strip.text = element_text(size = 30, face = "bold"),
       panel.spacing.x = unit(2, "lines"),
-      plot.caption = element_text(size = 18),
+      plot.caption = element_text(size = 24),
       strip.text.y.left = element_text(angle = 0),
-      axis.text = element_text(size = 18),
-      axis.title.x = element_text(size = 24),
+      axis.text = element_text(size = 30),
+      axis.title.x = element_text(size = 42),
       axis.line.x = element_line()
-    )  +
-    labs(caption = "(i) Results are expressed in code, taking the value 1 for 'Free expansion scenario', -0.5 for 'No deforestation' and -1 for 'No Agricultural expansion'.
-    \n(ii) Results are expressed in net increase rather than relative change.
-    \n(iii) Results are expressed % of consumption which is wasted.
-    \n(iv) Results are expressed in % of total land in 2050.")
+    )  
+    # labs(caption = "(i) Results are expressed in code, taking the value 1 for 'Free expansion scenario', -0.5 for 'No deforestation' and -1 for 'No Agricultural expansion'.
+    # \n(ii) Results are expressed in net increase rather than relative change.
+    # \n(iii) Results are expressed % of consumption which is wasted.
+    # \n(iv) Results are expressed in % of total land in 2050.")
 }
 
 
 # Define the output directory
-figure_directory <- here("output", "figures", "scenarios_assumption", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig3_scenarios", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -1511,10 +1511,10 @@ for (alpha3 in unique_alpha3) {
   
   p <- create_plot(data_filtered)
   
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 12, width = 35, res = 600
+    units = "in", height = 14, width = 35, res = 600
   )
   print(p)
   dev.off()

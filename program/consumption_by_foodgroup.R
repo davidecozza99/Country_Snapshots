@@ -25,6 +25,43 @@ conflicts_prefer(dplyr::filter)
 here()
 
 
+mapping_alpha3_Country <- read_excel(here("data","mapping_alpha3_Country.xlsx"))
+mapping_country_FAO_FABLE <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx"))
+
+FAOSTAT_FoodSupply_Other <- read_csv(here("data", "240523_FAOSTAT_FoodSupply_Other.csv")) %>% 
+  select(Area, Item, Year, Value) %>% 
+  left_join(mapping_country_FAO_FABLE, by = c("Area" = "Country_FAO")) %>% 
+  left_join(mapping_alpha3_Country, by = c("Country_FABLE" = "Country")) %>% 
+  mutate(ALPHA3 = ifelse(Country_FABLE == "GRC", "GRC", 
+                         ifelse(Country_FABLE == "NPL", "NPL",
+                         ALPHA3))) %>% 
+drop_na() %>% 
+  select(-Country_FABLE)
+
+FAOSTAT_FoodSupply_Other_wide <- FAOSTAT_FoodSupply_Other %>%
+  pivot_wider(names_from = Item, values_from = Value)
+
+
+
+database <- FAOSTAT_FoodSupply_Other_wide %>% 
+  group_by(Year, ALPHA3) %>% 
+  mutate(pop_tot = sum(Population, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  group_by(Year) %>% 
+  mutate(offals = Population / pop_tot * `Offals, Edible`) %>% 
+  mutate(fish = Population / pop_tot * `Fish, Seafood`) %>% 
+  group_by(Year, ALPHA3) %>% 
+  mutate(offals_tot = sum(offals)) %>% 
+  mutate(fish_total = sum(fish)) %>% 
+  ungroup() %>% 
+  select(mmmmmmmmmmmmmmmmmmm)
+
+
+
+
+
+
+
 #Data -------------------------------------------------------------------
 # missfood_regions <- read_excel(here("data", "240612_MissingFood.xlsx")) %>% 
 #   filter(CountryName %in% c("R_ASP", "R_CSA", "R_OEU", "R_NEU", "R_SSA", "R_NMC"))
@@ -194,7 +231,7 @@ product_labels <- c(
   "PORK" = "Pork",
   "POULTRY" = "Poultry",
   "PULSES" = "Pulses",
-  "REDMEAT" = "Beef, Goat and Lambs",
+  "REDMEAT" = "Beef, Goat and Lamb",
   "ROOTS" = "Roots and Tubers",
   "SUGAR" ="Sugar and Sugar Crops",
   "ALCOHOL" = "Alcohol",
@@ -256,9 +293,10 @@ for (country in countries) {
       legend.position = "bottom",
       legend.spacing.x = unit(3, "cm"),
       panel.spacing = unit(2, "cm")
-    ) +
-
-  guides(fill = guide_legend(nrow = 3))
+    )  + guides(
+      fill = guide_legend(override.aes = list(size = 10), keyheight = unit(2, "cm"), keywidth = unit(2, "cm")),
+      color = guide_legend(override.aes = list(size = 10))
+    )
   
   # Save the plot as a TIFF file
 filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
