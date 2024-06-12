@@ -48,7 +48,7 @@ dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 myLinetype <- c("dotted", "solid")
-names(myLinetype) <- c("<2.5%", "5%")
+names(myLinetype) <- c("2.5%", "5%")
 
 
 # Loop for each country
@@ -91,7 +91,7 @@ for (cur_country in countries) {
                labeller = labeller(pathway_id = cat.labs)
                ) +
     geom_hline(aes(yintercept = 2.5,
-                     linetype = "<2.5%")) +
+                     linetype = "2.5%")) +
     geom_hline(aes(yintercept = 5,
                      linetype = "5%")) +
     scale_linetype_manual(values = myLinetype, name = NULL) +
