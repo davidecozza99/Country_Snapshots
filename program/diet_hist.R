@@ -261,7 +261,7 @@ for (ALPHA3 in countries) {
   
   
   
-  cat.labs <- c(CurrentTrends = paste0("Historical value\n2020\n", CT_kcal_tot, " kcal/cap/day")
+  cat.labs <- c(CurrentTrends = paste0("Historical intake\n2020\n", CT_kcal_tot, " kcal/cap/day")
   )
   
   myLinetype <- c("dashed", "dotted", "solid")
@@ -308,8 +308,8 @@ for (ALPHA3 in countries) {
                         name = "",
                         labels = c(Maximum = "Max. Recommended",
                                    Minimum = "Min. Recommended")) + 
-    guides(colour=guide_legend(nrow = 1),
-           linetype = guide_legend(nrow = 1)) +
+    guides(colour=guide_legend(nrow = 2),
+           linetype = guide_legend(nrow = 2)) +
     theme_minimal() +
     theme(legend.text = element_text(size = 14))
   
@@ -374,22 +374,22 @@ for (ALPHA3 in countries) {
   
   p <- plot_grid(
     p, 
-    plot_grid(p_legend_rec, p_legend_food, nrow = 2, rel_heights = c(0.05, 0.95)),
+    plot_grid(p_legend_rec, p_legend_food, nrow = 2, rel_heights = c(0.15, 0.85)),
     nrow = 1,
     rel_heights = c(1, 0.5),  
-    rel_widths = c(3, 1) 
+    rel_widths = c(1.25, 1) 
   )
   
   p
   
-  # Save the plot as TIFF file
-  # filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
-  # tiff(
-  #   filename = here(figure_directory, filename),
-  #   units = "in", height = 9, width = 4.9, res = 600
-  # )
-  # print(p)
-  # dev.off()
+  #Save the plot as TIFF file
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
+  tiff(
+    filename = here(figure_directory, filename),
+    units = "in", height = 3.25, width = 9, res = 600
+  )
+  print(p)
+  dev.off()
   
 }
 
