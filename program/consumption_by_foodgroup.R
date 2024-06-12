@@ -26,29 +26,54 @@ here()
 
 
 #Data -------------------------------------------------------------------
-scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>% 
-  rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>% 
-  mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
-  filter(iteration == "5") %>% 
-  filter(!Year %in% c("2000", "2005", "2010", "2015")) %>% 
-select(alpha3,Pathway, Year, Product, kcalfeasprod)
+# missfood_regions <- read_excel(here("data", "240612_MissingFood.xlsx")) %>% 
+#   filter(CountryName %in% c("R_ASP", "R_CSA", "R_OEU", "R_NEU", "R_SSA", "R_NMC"))
+# 
+# missfood_regions_long <- missfood_regions %>%
+#   pivot_longer(cols = starts_with("20"),  # Select columns starting with "20" (assuming they are the year columns)
+#                names_to = "Year",  # New column name for years
+#                values_to = "kcalfeas") %>% 
+#   select(-type)
+# 
+# write.xlsx(missfood_regions_long, file = here("data", paste0(gsub("-", "",Sys.Date()), "_","missfood_regions_long.xlsx")))
 
-mapping<- read_excel(here("data", "mapping_product_group.xlsx")) %>% 
-  rename(Product = PRODUCT)
+missfood_regions <- read_excel(here("data","20240612_missfood_regions_long.xlsx"))
 
-consumption <- scenathon %>% 
-  left_join(mapping, by ="Product") %>% 
-  group_by(Pathway, alpha3, Year, PROD_GROUP) %>% 
-  mutate(kcalfeasprod_productgroup = sum(kcalfeasprod)) %>% 
-  ungroup()  %>% 
+
+# scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
+#   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>%
+#   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>%
+#   filter(iteration == "5") %>%
+#   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>%
+# select(alpha3,Pathway, Year, Product, kcalfeasprod)
+# 
+# mapping<- read_excel(here("data", "mapping_product_group.xlsx")) %>%
+#   rename(Product = PRODUCT)
+# 
+# consumption <- scenathon %>%
+#   left_join(mapping, by ="Product") %>%
+#   group_by(Pathway, alpha3, Year, PROD_GROUP) %>%
+#   mutate(kcalfeasprod_productgroup = sum(kcalfeasprod)) %>%
+#   ungroup()  %>%
+#   group_by(Pathway, alpha3, Year) %>%
+#   mutate(total_kcal = sum(kcalfeasprod)) %>%
+#   ungroup() %>%
+#   select(-Product, -kcalfeasprod) %>%
+#   filter(!PROD_GROUP %in% c("FIBERINDUS", "OLSCAKE")) %>%
+#   # filter(alpha3 == country) %>%
+#   unique %>%
+#   drop_na() %>%
+#   mutate(kcalfeasprod_productgroup = ifelse(kcalfeasprod_productgroup < 0, 0, kcalfeasprod_productgroup))
+
+consumption <- read_excel(here("data", "20240612_consumption.xlsx")) %>% 
+  select(-total_kcal)%>% 
+  rbind(missfood_regions) %>% 
   group_by(Pathway, alpha3, Year) %>% 
-  mutate(total_kcal = sum(kcalfeasprod)) %>% 
-  ungroup() %>%
-  select(-Product, -kcalfeasprod) %>%
-  filter(!PROD_GROUP %in% c("FIBERINDUS", "OLSCAKE")) %>% 
-  # filter(alpha3 == country) %>%
-  unique %>% 
-  drop_na()
+  mutate(total_kcal = sum(kcalfeasprod_productgroup)) %>% 
+  ungroup()
+  
+
+
 
 
 ### MDER
@@ -64,12 +89,12 @@ consumption <- scenathon %>%
 
 # 
 # ### Handling Missing Food groups (not done for regions)
-# FOOD_missing <- read_excel(here("data","Figure 6", "MissingFoodProducts.xlsx"), sheet = "figure6") %>% 
+# FOOD_missing <- read_excel(here("data","Figure 6", "MissingFoodProducts.xlsx"), sheet = "figure6") %>%
 #   mutate(PROD_GROUP = ifelse(
-#     Item %in% c("Wine", "Beer", "Beverages, Alcoholic"), "ALCOHOL","ANIMFAT" )) %>% 
-#   group_by(Country, PROD_GROUP) %>% 
-#   mutate(kcalfeasprod = sum(Value)) %>% 
-#   select(-Value, -Item) %>% 
+#     Item %in% c("Wine", "Beer", "Beverages, Alcoholic"), "ALCOHOL","ANIMFAT" )) %>%
+#   group_by(Country, PROD_GROUP) %>%
+#   mutate(kcalfeasprod = sum(Value)) %>%
+#   select(-Value, -Item) %>%
 #   unique()
 # 
 # country_abbreviations <- c(
@@ -101,9 +126,9 @@ consumption <- scenathon %>%
 #   mutate(Country = case_when(
 #     Country %in% names(country_abbreviations) ~ country_abbreviations[Country],
 #     TRUE ~ as.character(Country)
-#   )) %>% 
-#   select(-Year) %>% 
-#   rename(alpha3 = Country) %>% 
+#   )) %>%
+#   select(-Year) %>%
+#   rename(alpha3 = Country) %>%
 #   filter(alpha3 %in% c("ARG","AUS","BRA","CAN","CHN", "COL","DEU","ETH","FIN","GBR", "IDN", "IND","MEX","NOR", "RUS", "RWA","SWE",  "USA",
 #                           "DNK","GRC","TUR", "NPL",
 #                           "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"))
@@ -125,15 +150,12 @@ consumption <- scenathon %>%
 #   expanded_data <- rbind(expanded_data, temp_data)
 # }
 # 
-# FOOD_missing <- merge(FOOD_missing, expanded_data, by = "PROD_GROUP") %>% 
-#   unique()
+# FOOD_missing_final <- merge(FOOD_missing, expanded_data, by = "PROD_GROUP") %>%
+#   unique() %>% 
+#   rename(kcalfeasprod_productgroup = kcalfeasprod)
 # 
-# 
-# 
-# consumption_final <- consumption %>% 
-#   rbind(FOOD_missing)
-
-
+# write.xlsx(FOOD_missing_final, file = here("data", paste0(gsub("-", "",Sys.Date()), "_","FOOD_missing_final.xlsx")))
+# write.xlsx(consumption, file = here("data", paste0(gsub("-", "",Sys.Date()), "_","consumption.xlsx")))
 
 
 
@@ -156,7 +178,9 @@ product_colors <- c(
   "PULSES" = "#F17CB0",
   "REDMEAT" = "#B22222",       
   "ROOTS" = "#DAA520",        
-  "SUGAR" = "#FF4500"       
+  "SUGAR" = "#FF4500",
+  "ALCOHOL" = "#1E90FF",
+  "ANIMFAT" = "#A0522D"
 )
 #8B4513
 product_labels <- c(
@@ -172,7 +196,9 @@ product_labels <- c(
   "PULSES" = "Pulses",
   "REDMEAT" = "Beef, Goat and Lambs",
   "ROOTS" = "Roots and Tubers",
-  "SUGAR" ="Sugar and Sugar Crops"
+  "SUGAR" ="Sugar and Sugar Crops",
+  "ALCOHOL" = "Alcohol",
+  "ANIMFAT" = "Animal Fat"
 )
 
 #List countries
@@ -207,10 +233,10 @@ for (country in countries) {
     geom_bar(aes(y = kcalfeasprod_productgroup, fill = PROD_GROUP), stat = "identity", position = "stack", width = 0.6) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(x="",
-      y = "Consumption (kcal/cap/day)",
+      y = "kcal/cap/day",
       fill = ""
     ) +
-    scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
+    scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 3000), 250)) +
     facet_grid(. ~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
                  "CurrentTrends" = "Current Trends",
@@ -220,23 +246,25 @@ for (country in countries) {
     scale_fill_manual(values = product_colors, labels = product_labels) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 28, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 18),
-      legend.text = element_text(family = "sans", size = 20),
-      axis.title.x = element_text(color = "black", size = 20),
-      axis.title.y = element_text(color = "black", size = 20),
+      text = element_text(family = "sans", color = "black", size = 54, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 54),
+      legend.text = element_text(family = "sans", size = 42),
+      axis.title.x = element_text(color = "black", size = 38),
+      axis.text.x = element_text(color = "black", size = 32),
+      axis.title.y = element_text(color = "black", size = 38),
+      axis.text.y = element_text(color = "black", size = 32),
       legend.position = "bottom",
       legend.spacing.x = unit(3, "cm"),
       panel.spacing = unit(2, "cm")
     ) +
 
-  guides(fill = guide_legend(nrow = 2))
+  guides(fill = guide_legend(nrow = 3))
   
   # Save the plot as a TIFF file
-filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-tiff(
+filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+png(
   filename = here(figure_directory, filename),
-  units = "in", height = 10, width = 20, res = 300)
+  units = "in", height = 16, width = 32, res = 300)
   print(p_consumption)
 dev.off()
 

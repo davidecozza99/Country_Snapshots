@@ -74,22 +74,19 @@ for (country in countries) {
   country_data <- subset(scenathon, alpha3 == country)
   
   # Create ggplot for the specific country
-  p_pathway <- ggplot(country_data, aes(x = Year, y = agroecosh, color = Pathway)) +
-    geom_line(size = 1.2) + 
+  p_pathway <- ggplot(country_data, aes(x = Year, y = agroecosh, color = Pathway, linetype = Pathway)) +
+    geom_line(size = 1) + 
     labs(
-      x = "Year",
-      y = "% of Cropland",
-      color = ""
-      # linetype = "Pathway"
+      x = "",
+      y = "% of Cropland"
     ) +
-    scale_color_manual(values = pathway_colors, labels = pathway_labels) +
-    # scale_linetype_manual(values = c("CurrentTrends" = "solid", "NationalCommitments" = "dashed", "GlobalSustainability" = "dotdash")) +  
-    scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +  
-    # guides(
-    #   color = guide_legend(title = "Pathway"),
-    #   linetype = guide_legend(title = "Pathway"),
-    #   override.aes = list(linetype = c("solid", "dashed", "dotdash"))
-    # ) +      
+    scale_color_manual(values = pathway_colors, labels = pathway_labels, name = "") +
+    scale_linetype_manual(values = c("CurrentTrends" = "solid", "NationalCommitments" = "dashed", "GlobalSustainability" = "dotdash"), name = "") +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0, 1)) +
+    guides(
+      color = guide_legend(override.aes = list(linetype = c("solid", "dashed", "dotdash"))),
+      linetype = FALSE
+    ) +
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 10, face = "bold"),
@@ -105,7 +102,7 @@ for (country in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.2, res = 300
+    units = "in", height = 5, width = 5.5, res = 300
   )
   print(p_pathway)
   dev.off()

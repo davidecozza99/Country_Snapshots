@@ -26,36 +26,28 @@ here()
 
 
 #Data -------------------------------------------------------------------
-scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>% 
-  rename(alpha3 = country, Pathway = pathway, Year = year) %>% 
-  mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
-  filter(iteration == "5") %>% 
-  filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
-  select(alpha3,Pathway, Year, agroecosh, calccropland) %>% 
-  mutate(agroecland = agroecosh*calccropland/1000 ) %>% 
-  mutate(nonagroecland = (1-agroecosh)*calccropland/1000) %>% 
-  filter(!Year %in% c("2000", "2005", "2010", "2015")) 
-
-
-
-
 product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>% 
   rename(Pathway = pathway) %>% 
   filter(tradeadjustment == "Yes") %>% 
-  filter(!year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
+  filter(!year %in% c("2000", "2005", "2010", "2015", "2020", "2025", "2035", "2040", "2045")) %>%
   select(country, Pathway, year, workersfte, fertilizercost, labourcost, machineryrunningcost,dieselcost, pesticidecost) %>% 
   group_by(country, Pathway, year)  %>% 
   summarise(
     workersfte = sum(workersfte, na.rm = T),
-    fertilizercost = sum(fertilizercost, na.rm = T),
-    labourcost = sum(labourcost, na.rm = T),
-    machineryrunningcost = sum(machineryrunningcost, na.rm = T),
-    dieselcost = sum(dieselcost, na.rm = T),
-    pesticidecost = sum(pesticidecost, na.rm = T)
-  )
-  
-  
-
+    fertilizercost = sum(fertilizercost, na.rm = T)/1000,
+    labourcost = sum(labourcost, na.rm = T)/1000,
+    machineryrunningcost = sum(machineryrunningcost, na.rm = T)/1000,
+    dieselcost = sum(dieselcost, na.rm = T)/1000,
+    pesticidecost = sum(pesticidecost, na.rm = T)/1000
+  ) %>% 
+  group_by(country, Pathway, year)  %>% 
+  mutate(
+  fertilizercost = if_else(country == "CHN", fertilizercost/1000, fertilizercost ),
+  labourcost = if_else(country == "CHN", labourcost/1000, labourcost),
+  machineryrunningcost = if_else(country == "CHN", machineryrunningcost/1000, machineryrunningcost),
+  dieselcost = if_else(country == "CHN", dieselcost/1000, dieselcost),
+  pesticidecost = if_else(country == "CHN", pesticidecost/1000, pesticidecost)
+)
 
 
 scenathon_long <- product %>%
@@ -75,8 +67,8 @@ costs_colors <- c(
   "fertilizercost" = "#FF4500", 
   "labourcost" = "#1E90FF", 
   "machineryrunningcost" = "#32CD32", 
-  "dieselcost" = "#8A2BE2", 
-  "pesticidecost" = "#FF69B4"
+  "dieselcost" = "brown", 
+  "pesticidecost" = "#8A2BE2"
 )
 
 # Define the labels
@@ -104,51 +96,60 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "costs", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig9", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 # Create plot for each country
 plot_list <- list()
 
-for (country in countries) {
+for (curr in countries) {
   # Subset data for the specific country
-  country_data <- subset(scenathon_long, alpha3 == country)
+  country_data <- subset(scenathon_long, curr == country)
+  
+  y_axis_label <- ifelse(curr == "CHN", "billion USD", "million USD")
+  
   
   # Create ggplot for the specific country
-  p_pathway <- ggplot(country_data, aes(x = as.factor(Year), y = Value, fill = LandType)) +
-    geom_bar(stat = "identity", position = "stack") +
-    # geom_text(aes(label = paste0(Percentage, "%")), position = position_stack(vjust = 0.5), size = 5, color = "ivory") +
+  p_pathway <- ggplot(country_data, aes(x = as.factor(year), y = Value, fill = CostType)) +
+    geom_bar(stat = "identity", position = "stack", width = 0.6) +
     geom_hline(yintercept = 0, linetype = "solid") +
+    geom_point(aes(x = as.factor(year), y = workersfte / max(workersfte) * max(Value), group = 1, shape = "Workers FTE"), color = "black", size = 3) +
+    scale_y_continuous(sec.axis = sec_axis(~ . * max(country_data$workersfte) / max(country_data$Value), name = "workers FTE")) +
     labs(
       x = "",
-      y = "1000 USD", fill = ""
+      y = y_axis_label, fill = ""
     ) +
     facet_grid(. ~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
-                 "CurrentTrends" = "Current Trend Pathway",
-                 "NationalCommitments" = "National Commitments Pathway",
-                 "GlobalSustainability" = "Global Sustainability Pathway"
+                 "CurrentTrends" = "Current Trends",
+                 "NationalCommitments" = "National Commitments",
+                 "GlobalSustainability" = "Global Sustainability"
                ))) +
     scale_fill_manual(values = costs_colors, labels = costs_labels) +
+    scale_shape_manual(name = "", values = c("Workers FTE" = 18), labels = c("Workers FTE")) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 18),
-      legend.text = element_text(family = "sans", size = 18),
-      axis.title.x = element_text(color = "black", size = 18),
-      axis.title.y = element_text(color = "black", size = 18),
+      text = element_text(family = "sans", color = "black", size = 11, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 8),
+      legend.text = element_text(family = "sans", size = 8),
+      axis.title.x = element_text(color = "black", size = 8),
+      axis.title.y = element_text(color = "black", size = 8),
       legend.position = "bottom",
-      panel.spacing = unit(2, "cm")
+      panel.spacing = unit(0.05, "cm")
+    ) + 
+    guides(
+      fill = guide_legend(override.aes = list(shape = NA), byrow = TRUE, nrow = 2),
+      shape = guide_legend(override.aes = list(color = "black", size = 3))
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 20, res = 300
-  )
+    units = "in", height = 5, width = 5.5, res = 300)
   print(p_pathway)
   dev.off()
   
 }
+

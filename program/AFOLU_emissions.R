@@ -24,7 +24,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   rename(alpha3 = country, Year = year) %>% 
   mutate(pathway = recode(pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   filter(tradeajustment == "Yes") %>%
-  # filter(!Year %in% c("2000", "2005", "2010")) %>% 
+  filter(!Year %in% c("2000", "2005")) %>%
   rename(calcpeatco2 = calcsequestco3) %>% 
   select(alpha3, pathway, Year, calccropn2o, calccropch4, calccropco2, calcliven2o, calclivech4, 
          ghgbiofuels,
@@ -190,11 +190,11 @@ for (country in countries) {
                                                "GlobalSustainability" = "Global Sustainability"))) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 18),
-      legend.text = element_text(family = "sans", size = 18),
-      axis.title.x = element_text(color = "black", size = 18),
-      axis.title.y = element_text(color = "black", size = 18),
+      text = element_text(family = "sans", color = "black", size = 30, face = "bold"),
+      legend.text = element_text(family = "sans", size = 24),
+      axis.title.x = element_text(color = "black", size = 24),
+      axis.title.y = element_text(color = "black", size = 24),
+      axis.title.y.right = element_text(color = "black", size = 24),
       legend.position = "bottom",
       panel.spacing = unit(2, "cm")
     )  +
@@ -204,7 +204,7 @@ for (country in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 20, res = 300
+    units = "in", height = 10, width = 24, res = 300
   )
   print(p)
   dev.off()

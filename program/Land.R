@@ -17,6 +17,7 @@ library(stats)
 library(zoo)
 library(cluster) 
 library(factoextra)
+library(scales)  
 
 conflicted::conflict_prefer("rename", "dplyr")
 conflicted::conflict_prefer("mutate", "dplyr")
@@ -103,7 +104,7 @@ for (country in countries) {
   p_pathway <- ggplot(country_data, aes(x = Year, y = Value, fill = LandType)) +
     geom_area(position = "stack") +
     geom_hline(yintercept = 0, linetype = "solid") +
-geom_line(aes(y = PA, color = "Protected Areas"), linetype = "dashed", size = 2) + 
+    geom_line(aes(y = PA, color = "Protected Areas"), linetype = "dashed", size = 2) + 
     labs(
       x = "",
       y = "Mha", fill = ""
@@ -115,27 +116,32 @@ geom_line(aes(y = PA, color = "Protected Areas"), linetype = "dashed", size = 2)
                  "GlobalSustainability" = "Global Sustainability"
                ))) +
     scale_fill_manual(values = land_colors, labels = land_labels) +
-    scale_color_manual(values = c("Protected Areas" = "ivory")) + 
+    scale_color_manual(values = c("Protected Areas" = "black")) + 
     scale_y_continuous(
-      sec.axis = sec_axis(~ . / max(., na.rm = TRUE) * 100, name = "% total land", labels = percent_labels)
+      sec.axis = sec_axis(~ . / country_data$totalland * 100, name = "% total land")
     ) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 24, face = "bold"),
+      text = element_text(family = "sans", color = "black", size = 30, face = "bold"),
       legend.title = element_blank(),  # Remove the legend title
-      legend.text = element_text(family = "sans", size = 18),
-      axis.title.x = element_text(color = "black", size = 18),
-      axis.title.y = element_text(color = "black", size = 18),
-      axis.title.y.right = element_text(color = "black", size = 18),
+      legend.text = element_text(family = "sans", size = 24),
+      axis.title.x = element_text(color = "black", size = 24),
+      axis.title.y = element_text(color = "black", size = 24),
+      axis.title.y.right = element_text(color = "black", size = 24),
       legend.position = "bottom",
-      panel.spacing = unit(2, "cm")
+      panel.spacing = unit(2, "cm"),
+      axis.text.y.right = element_text(color = "black", size = 24),
+      axis.line.y.left = element_line(color = "black"),
+      axis.line.y.right  = element_line(color = "black"),
+      axis.ticks.y.right = element_line(color = "black"),
+      axis.ticks.y.left = element_line(color = "black")
     )
   
   # Save the plot as a TIFF file
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 20, res = 300
+    units = "in", height = 10, width = 24, res = 300
   )
   print(p_pathway)
   dev.off()

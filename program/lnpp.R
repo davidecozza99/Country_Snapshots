@@ -58,7 +58,7 @@ lnpp_labels <- c(
 
 
 #Plot Pathway ---------------------------------------------------------------
-scenathon$Pathway <- factor(scenathon$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
+scenathon_long$Pathway <- factor(scenathon_long$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
 # List countries
 countries <- c(
@@ -83,7 +83,7 @@ for (country in countries) {
 
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = as.factor(Year), y = Value, fill = LandType)) +
-    geom_bar(stat = "identity", position = "stack") +
+    geom_bar(stat = "identity", position = "stack", width = 0.6) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(
       x = "",
@@ -98,11 +98,11 @@ for (country in countries) {
     scale_fill_manual(values = lnpp_colors, labels = lnpp_labels) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 10, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 8),
-      legend.text = element_text(family = "sans", size = 8),
-      axis.title.x = element_text(color = "black", size = 8),
-      axis.title.y = element_text(color = "black", size = 8),
+      text = element_text(family = "sans", color = "black", size = 13, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 9),
+      legend.text = element_text(family = "sans", size = 9),
+      axis.title.x = element_text(color = "black", size = 9),
+      axis.title.y = element_text(color = "black", size = 9),
       legend.position = "bottom",
       panel.spacing = unit(0.05, "cm")
     ) + 
@@ -113,7 +113,7 @@ for (country in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.2, res = 300)
+    units = "in", height = 5, width = 5.5, res = 300)
 
   print(p_pathway)
   dev.off()
