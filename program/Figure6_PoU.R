@@ -121,7 +121,7 @@ for (cur_country in countries) {
   filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.5, res = 300)
+    units = "cm", height = 15.8, width = 17.4, res = 96)
   print(p_POU)
   dev.off()
   
