@@ -4,3 +4,7 @@
 *.tiff
 *.tiff
 .Rproj.user
+.Rhistory
+.RData
+paths
+.paths
