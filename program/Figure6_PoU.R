@@ -59,9 +59,9 @@ for (cur_country in countries) {
     mutate(pou_computed = ifelse(is.na(pou_computed), 2.49, pou_computed)) %>% 
     mutate(pou_display = ifelse(is.na(pou_computed), "<2.5", pou_computed))
   
-  CT_kcal_tot <- country_data %>% filter(pathway_id == "CT") %>% pull(pou_display) %>% unique() %>% round()
-  NC_kcal_tot <- country_data %>% filter(pathway_id == "NC") %>% pull(pou_display) %>% unique() %>% round()
-  GS_kcal_tot <- country_data %>% filter(pathway_id == "GS") %>% pull(pou_display) %>% unique() %>% round()
+  CT_kcal_tot <- country_data %>% filter(pathway_id == "CT") %>% pull(pou_display) %>% unique() %>% round(.,1)
+  NC_kcal_tot <- country_data %>% filter(pathway_id == "NC") %>% pull(pou_display) %>% unique() %>% round(.,1)
+  GS_kcal_tot <- country_data %>% filter(pathway_id == "GS") %>% pull(pou_display) %>% unique() %>% round(.,1)
   
   
   cat.labs <- c(CT = paste0("Current Trends\n2030\n", CT_kcal_tot, " %"),
