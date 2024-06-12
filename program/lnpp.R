@@ -51,9 +51,9 @@ lnpp_colors <- c(
 
 lnpp_labels <- c(
   "lnppmatureforest_expost" = "LNPP in mature forests",
-  "lnppmatureotherland_expost" = "LNPP in mature other natural lands",
+  "lnppmatureotherland_expost" = "LNPP in mature other \nnatural lands",
   "lnppnewforest" = "LNPP in new forest",
-  "lnppnewotherland" = "LNPP in new other natural land"
+  "lnppnewotherland" = "LNPP in new other \nnatural land"
 )
 
 
@@ -69,7 +69,7 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "fig7", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig10_lnpp", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -98,24 +98,25 @@ for (country in countries) {
     scale_fill_manual(values = lnpp_colors, labels = lnpp_labels) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 13, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 9),
-      legend.text = element_text(family = "sans", size = 9),
-      axis.title.x = element_text(color = "black", size = 9),
-      axis.title.y = element_text(color = "black", size = 9),
+      text = element_text(family = "sans", color = "black", size = 16, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 16),
+      legend.text = element_text(family = "sans", size = 14),
+      axis.title.x = element_text(color = "black", size = 14),
+      axis.title.y = element_text(color = "black", size = 14),
       legend.position = "bottom",
       panel.spacing = unit(0.05, "cm")
-    ) + 
-    guides(fill = guide_legend(nrow = 2))
-
+    )  + guides(
+      fill = guide_legend(override.aes = list(size = 5), keyheight = unit(1, "cm"), keywidth = unit(1, "cm"),  nrow = 2),
+      color = guide_legend(override.aes = list(size = 5))
+    )
+  
 
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.5, res = 300)
+    units = "in", height = 5, width = 7, res = 300)
 
   print(p_pathway)
   dev.off()
-
   }

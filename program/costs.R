@@ -74,11 +74,11 @@ costs_colors <- c(
 # Define the labels
 costs_labels <- c(
   "workersfte" = "Full-Time Equivalent Workers",
-  "fertilizercost" = "Fertilizer Cost",
-  "labourcost" = "Labour Cost",
-  "machineryrunningcost" = "Machinery Running Cost",
-  "dieselcost" = "Diesel Cost",
-  "pesticidecost" = "Pesticide Cost"
+  "fertilizercost" = "Fertilizer",
+  "labourcost" = "Labour",
+  "machineryrunningcost" = "Machinery Running",
+  "dieselcost" = "Diesel",
+  "pesticidecost" = "Pesticide"
 )
 
 
@@ -96,7 +96,7 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "fig9", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig12_costs", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -130,11 +130,11 @@ for (curr in countries) {
     scale_shape_manual(name = "", values = c("Workers FTE" = 18), labels = c("Workers FTE")) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 11, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 8),
-      legend.text = element_text(family = "sans", size = 8),
-      axis.title.x = element_text(color = "black", size = 8),
-      axis.title.y = element_text(color = "black", size = 8),
+      text = element_text(family = "sans", color = "black", size = 15, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 16),
+      legend.text = element_text(family = "sans", size = 12),
+      axis.title.x = element_text(color = "black", size = 14),
+      axis.title.y = element_text(color = "black", size = 14),
       legend.position = "bottom",
       panel.spacing = unit(0.05, "cm")
     ) + 
@@ -144,10 +144,10 @@ for (curr in countries) {
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.5, res = 300)
+    units = "in", height = 5, width = 7, res = 300)
   print(p_pathway)
   dev.off()
   

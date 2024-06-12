@@ -56,14 +56,14 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "fig6", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig9_agro", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 # Create plot for each country
 plot_list <- list()
 
-pathway_colors <- c("CurrentTrends" = "#76c4c4", "NationalCommitments" = "#B22222", "GlobalSustainability" = "#FFCB52")
+pathway_colors <- c("CurrentTrends" = "#B22222", "NationalCommitments" = "steelblue", "GlobalSustainability" = "#006400")
 pathway_labels <- c("CurrentTrends" = "Current Trends", "NationalCommitments" = "National Commitments", "GlobalSustainability" = "Global Sustainability")
 
 countries <- unique(scenathon$alpha3)
@@ -75,10 +75,10 @@ for (country in countries) {
   
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = Year, y = agroecosh, color = Pathway, linetype = Pathway)) +
-    geom_line(size = 1) + 
+    geom_line(size = 1.3) + 
     labs(
       x = "",
-      y = "% of Cropland"
+      y = "% of cropland"
     ) +
     scale_color_manual(values = pathway_colors, labels = pathway_labels, name = "") +
     scale_linetype_manual(values = c("CurrentTrends" = "solid", "NationalCommitments" = "dashed", "GlobalSustainability" = "dotdash"), name = "") +
@@ -89,20 +89,20 @@ for (country in countries) {
     ) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 10, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 8),
-      legend.text = element_text(family = "sans", size = 8),
-      axis.title.x = element_text(color = "black", size = 8),
-      axis.title.y = element_text(color = "black", size = 8),
+      text = element_text(family = "sans", color = "black", size = 16, face = "bold"),
+      legend.title = element_text(family = "sans", color = "black", size = 16),
+      legend.text = element_text(family = "sans", size = 12),
+      axis.title.x = element_text(color = "black", size = 16),
+      axis.title.y = element_text(color = "black", size = 16),
       legend.position = "bottom",
       panel.spacing = unit(0.05, "cm")
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 5.5, res = 300
+    units = "in", height = 5, width = 7, res = 300
   )
   print(p_pathway)
   dev.off()

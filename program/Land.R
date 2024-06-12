@@ -83,7 +83,7 @@ land_labels <- c(
   "totalland" = "Total Land"
   )
 
-figure_directory <- here("output", "figures", "fig4", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig7_land", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -111,7 +111,7 @@ for (country in countries) {
     ) +
     facet_grid(. ~ Pathway, scales = "free_y",
                labeller = labeller(Pathway = c(
-                 "CurrentTrends" = "Current Trend",
+                 "CurrentTrends" = "Current Trends",
                  "NationalCommitments" = "National Commitments",
                  "GlobalSustainability" = "Global Sustainability"
                ))) +
@@ -122,26 +122,31 @@ for (country in countries) {
     ) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 30, face = "bold"),
-      legend.title = element_blank(),  # Remove the legend title
-      legend.text = element_text(family = "sans", size = 24),
-      axis.title.x = element_text(color = "black", size = 24),
-      axis.title.y = element_text(color = "black", size = 24),
-      axis.title.y.right = element_text(color = "black", size = 24),
+      text = element_text(family = "sans", color = "black", size = 58, face = "bold"),
+      legend.title = element_blank(), 
+      legend.text = element_text(family = "sans", size = 44),
+      axis.title.x = element_text(color = "black", size = 44),
+      axis.text.x = element_text(color = "black", size = 44),
+      axis.title.y = element_text(color = "black", size = 44),
+      axis.text.y = element_text(color = "black", size = 44),
       legend.position = "bottom",
+      legend.spacing.x = unit(3, "cm"),
       panel.spacing = unit(2, "cm"),
-      axis.text.y.right = element_text(color = "black", size = 24),
+      axis.text.x.right = element_text(color = "black", size = 44),
       axis.line.y.left = element_line(color = "black"),
-      axis.line.y.right  = element_line(color = "black"),
-      axis.ticks.y.right = element_line(color = "black"),
-      axis.ticks.y.left = element_line(color = "black")
+      axis.line.y.right  = element_line(color = "black"), 
+      axis.ticks.y.right = element_line(color = "black"), size = 30,
+      axis.ticks.y.left = element_line(color = "black"), size = 30
+    ) +  guides(
+      fill = guide_legend(override.aes = list(size = 10), keyheight = unit(2, "cm"), keywidth = unit(2, "cm")),
+      color = guide_legend(override.aes = list(size = 10))
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 10, width = 24, res = 300
+    units = "in", height = 16, width = 32, res = 300
   )
   print(p_pathway)
   dev.off()
