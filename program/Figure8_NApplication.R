@@ -30,7 +30,10 @@ scenathon<- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %
   pivot_longer(cols = c(`Application of organic fertilizers`,
                         `Manure left on pastures`,
                         `Application of synthetic fertilizers`), 
-               names_to = "type", values_to = "value")
+               names_to = "type", values_to = "value") %>% 
+  mutate(type = factor(type, levels = c("Manure left on pastures", 
+                                        "Application of organic fertilizers", 
+                                        "Application of synthetic fertilizers")))
 
 #List countries
 countries <- c(
@@ -75,7 +78,9 @@ for (cur_country in countries) {
                #   "GlobalSustainability" = "Global Sustainability"
                #))
     ) +
-    #scale_fill_manual(values = product_colors, labels = product_labels) +  
+    scale_fill_manual(values = c(`Manure left on pastures` = "#8B4513", 
+                                 `Application of organic fertilizers` = "#FFD700", 
+                                 `Application of synthetic fertilizers` = "#1E90FF")) +  
     theme_minimal() +
     theme(
       text = element_text(family = "sans", "black", size = 18, face = "bold"),
@@ -94,7 +99,7 @@ for (cur_country in countries) {
   filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 7, width = 24, res = 300)
+    units = "in", height = 5, width = 5.5, res = 300)
   print(p_N)
   dev.off()
   
