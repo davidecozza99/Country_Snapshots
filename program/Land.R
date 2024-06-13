@@ -34,7 +34,14 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   mutate(PA =protectedareasforest + protectedareasother + protectedareasothernat) %>% 
   # filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
   mutate(across(c(calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, PA), ~ . / 1000)) %>% 
-  select(-protectedareasforest,- protectedareasother, -protectedareasothernat)
+  select(-protectedareasforest,- protectedareasother, -protectedareasothernat) %>% 
+  mutate(calccropland = (ifelse(alpha3 == "SWE",
+                                calccropland + newotherland,
+                                calccropland))) %>% 
+  mutate(newotherland = (ifelse(alpha3 == "SWE",
+                                newotherland - newotherland,
+                                newotherland)))
+
 
 
 scenathon_long <- scenathon %>%
@@ -83,7 +90,7 @@ land_labels <- c(
   "totalland" = "Total Land"
   )
 
-figure_directory <- here("output", "figures", "fig7_land", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig6_land", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -124,7 +131,7 @@ for (country in countries) {
     theme(
       text = element_text(family = "sans", color = "black", size = 58, face = "bold"),
       legend.title = element_blank(), 
-      legend.text = element_text(family = "sans", size = 44),
+      legend.text = element_text(family = "sans", size = 44, margin = margin(r = 1, unit = 'cm')),
       axis.title.x = element_text(color = "black", size = 44),
       axis.text.x = element_text(color = "black", size = 44),
       axis.title.y = element_text(color = "black", size = 44),
@@ -144,7 +151,7 @@ for (country in countries) {
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  filename <- paste0("Fig6_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 16, width = 32, res = 300

@@ -191,7 +191,7 @@ for (country in countries) {
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 58, face = "bold"),
-      legend.text = element_text(family = "sans", size = 42),
+      legend.text = element_text(family = "sans", size = 42, margin = margin(r = 1.2, unit = 'cm')),
       axis.title.x = element_text(color = "black", size = 38),
       axis.text.x = element_text(color = "black", size = 32),
       axis.title.y = element_text(color = "black", size = 38),
@@ -206,7 +206,7 @@ for (country in countries) {
     theme(legend.spacing.x = unit(1,'cm'))
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  filename <- paste0("Fig8_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 16, width = 32, res = 300

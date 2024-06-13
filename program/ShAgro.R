@@ -99,7 +99,7 @@ for (country in countries) {
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  filename <- paste0("Fig9_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 5, width = 7, res = 300

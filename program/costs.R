@@ -145,7 +145,7 @@ for (curr in countries) {
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
+  filename <- paste0("Fig12_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "cm", height = 15.8, width = 17.4, res = 300)

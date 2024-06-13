@@ -83,7 +83,7 @@ df_planted <- top_planted %>%
 df_planted2 <- top_planted %>% 
   rbind(rest_planted)  
 
-figure_directory <- here("output", "figures", "Figure10_CroplandComposition")
+figure_directory <- here("output", "figures", "fig7_CroplandComposition")
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -222,41 +222,45 @@ for (cur_country in countries) {
     geom_area(aes(x = year, y = feasplantarea/1000, fill = product)) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(x="",
-         y = "Cropland composition (Mha)",
+         y = "Mha",
          fill = ""
     ) +
     scale_x_continuous(breaks = c(2000, 2020, 2050)) +
     #scale_fill_manual()
     facet_grid(. ~ pathway_id, scales = "free_y",
                labeller = labeller(pathway_id = c(
-                 "CT" = "Current\nTrend",
-                 "NC" = "National\nCommitments",
-                 "GS" = "Global\nSustainability"
+                 "CT" = "Current Trends",
+                 "NC" = "National Commitments",
+                 "GS" = "Global Sustainability"
                ))
     ) +
     scale_fill_manual(values = c("orange", "yellow", "brown", "green", "maroon", "grey"),
                       labels = crops_labels) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", "black", size = 18, face = "bold"),
+      text = element_text(family = "sans", color = "black", size = 58, face = "bold"),
       # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
-      legend.text = element_text(family = "sans", size = 18),
-      # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
-      axis.title.x = element_blank(),
-      axis.title.y = element_text(color = "black", size = 18),
+      legend.text = element_text(family = "sans", size = 44, margin = margin(r = 1, unit = 'cm')),
+      axis.text.x = element_text(color = "black", size = 44),
+      axis.text.y = element_text(color = "black", size = 44),
+      axis.title.x = element_text(color = "black", size = 44),
+      axis.title.y = element_text(color = "black", size = 44),
       legend.position = "bottom",
-      panel.spacing = unit(1, "cm"),
+      panel.spacing = unit(2, "cm"),
       plot.margin = margin(0,0.5,0,0, "cm")
-    ) +
-    
-    guides(fill = guide_legend(nrow = 2))
+    ) +guides(
+      fill = guide_legend(override.aes = list(size = 10), keyheight = unit(2, "cm"), keywidth = unit(2, "cm")),
+      color = guide_legend(override.aes = list(size = 10))
+    )
+  
   
   # Save the plot as a TIFF file
-  filename <- paste0("Fig7_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
-  tiff(
+  filename <- paste0("Fig7_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".png")
+  png(
     filename = here(figure_directory, filename),
-    units = "in", height = 4.75, width = 6.2, res = 300)
-  print(p_crop)
+    units = "in", height = 16, width = 32, res = 300)
+  
+    print(p_crop)
   dev.off()
   
 }

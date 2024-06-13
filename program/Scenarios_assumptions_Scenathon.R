@@ -930,7 +930,9 @@ db_change_irr <- db_irr_agg %>%
   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3)) %>% 
   mutate(irr_change = ifelse(ALPHA3 == "GRC", 0, irr_change)) %>% 
   mutate(irr_change = ifelse(ALPHA3 == "FIN" & Pathway == "NationalCommitments", 6, irr_change)) %>% 
-  mutate(irr_change = ifelse(ALPHA3 == "FIN" & Pathway == "GlobalSustainability", 6, irr_change))  
+  mutate(irr_change = ifelse(ALPHA3 == "FIN" & Pathway == "GlobalSustainability", 6, irr_change)) %>% 
+  mutate(irr_change = round(irr_change, 2))  # Round to 2 decimals
+
 
 
 ####### OLD METHOD ###########
@@ -1502,8 +1504,6 @@ print(figure_directory)
 
 
 unique_alpha3 <- unique(complete_data$ALPHA3)
-
-
 
 
 for (alpha3 in unique_alpha3) {
