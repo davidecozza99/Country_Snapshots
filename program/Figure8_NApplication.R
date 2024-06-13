@@ -22,18 +22,18 @@ here()
 scenathon<- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %>% 
   filter(tradeadjustment == "Yes") %>% 
   filter(year %in% c("2030", "2050")) %>% 
-  mutate( pathway_id = factor(pathway_id, levels = c("CT", "NC", "GS"))) %>% 
+  mutate(pathway_id = factor(pathway_id, levels = c("CT", "NC", "GS"))) %>% 
   select(pathway_id, country, year, calcn_synth, calcn_agsoils, calcn_leftpasture) %>% 
-  rename(`Application of organic fertilizers` = calcn_agsoils,
-         `Manure left on pastures` = calcn_leftpasture,
-         `Application of synthetic fertilizers` = calcn_synth) %>% 
-  pivot_longer(cols = c(`Application of organic fertilizers`,
-                        `Manure left on pastures`,
-                        `Application of synthetic fertilizers`), 
+  rename(`Org. N applied to cropland` = calcn_agsoils,
+         `N left on pasture` = calcn_leftpasture,
+         `Synth. N applied to cropland` = calcn_synth) %>% 
+  pivot_longer(cols = c(`Org. N applied to cropland`,
+                        `N left on pasture`,
+                        `Synth. N applied to cropland`), 
                names_to = "type", values_to = "value") %>% 
-  mutate(type = factor(type, levels = c("Manure left on pastures", 
-                                        "Application of organic fertilizers", 
-                                        "Application of synthetic fertilizers")))
+  mutate(type = factor(type, levels = c("N left on pasture", 
+                                        "Org. N applied to cropland", 
+                                        "Synth. N applied to cropland")))
 
 #List countries
 countries <- c(
@@ -52,7 +52,7 @@ countries <- c(
 
 
 
-figure_directory <- here("output", "figures", "Figure8_NApplication")
+figure_directory <- here("output", "figures", "Fig11_NApplication")
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -63,34 +63,33 @@ for (cur_country in countries) {
   country_data <- subset(scenathon, country == cur_country)
   print(summary(country_data))
   # Create plot for the specific country
-  p_N <- ggplot(country_data, aes(x = as.factor(pathway_id))) +
-    geom_bar(aes(y = value/1000, fill = type), stat = "identity", position = "stack", width = 0.8) +
+  p_N <- ggplot(country_data, aes(x = as.factor(year))) +
+    geom_bar(aes(y = value/1000, fill = type), stat = "identity", position = "stack", width = 0.6) +
     geom_hline(yintercept = 0, linetype = "solid") +
     labs(x="",
-         y = "N Application (1000 t N)",
+         y = "1000 t N",
          fill = ""
     ) +
     #scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
-    facet_grid(. ~ year, scales = "free_y"#,
-               # labeller = labeller(pathway = c(
-               #   "CurrentTrends" = "Current Trend",
-               #   "NationalCommitments" = "National Commitments",
-               #   "GlobalSustainability" = "Global Sustainability"
-               #))
-    ) +
-    scale_fill_manual(values = c(`Manure left on pastures` = "#8B4513", 
-                                 `Application of organic fertilizers` = "#FFD700", 
-                                 `Application of synthetic fertilizers` = "#1E90FF")) +  
+    facet_grid(. ~ pathway_id, scales = "free_y",
+               labeller = labeller(pathway_id = c(
+                 "CT" = "Current Trends",
+                 "NC" = "National Commitments",
+                 "GS" = "Global Sustainability"
+               )))+
+    scale_fill_manual(values = c(`N left on pasture` = "#8B4513", 
+                                 `Org. N applied to cropland` = "#FFD700", 
+                                 `Synth. N applied to cropland` = "#1E90FF")) +  
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", "black", size = 18, face = "bold"),
+      text = element_text(family = "sans", "black", size = 16, face = "bold"),
       # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
-      legend.text = element_text(family = "sans", size = 18),
+      legend.text = element_text(family = "sans", size = 14),
       # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
       axis.title.x = element_blank(),
-      axis.title.y = element_text(color = "black", size = 18),
+      axis.title.y = element_text(color = "black", size = 14),
       legend.position = "bottom",
-      panel.spacing = unit(2, "cm")
+      panel.spacing = unit(0.05, "cm")
     ) +
     
     guides(fill = guide_legend(nrow = 3))

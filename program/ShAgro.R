@@ -82,7 +82,7 @@ for (country in countries) {
     ) +
     scale_color_manual(values = pathway_colors, labels = pathway_labels, name = "") +
     scale_linetype_manual(values = c("CurrentTrends" = "solid", "NationalCommitments" = "dashed", "GlobalSustainability" = "dotdash"), name = "") +
-    scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0, 1)) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
     guides(
       color = guide_legend(override.aes = list(linetype = c("solid", "dashed", "dotdash"))),
       linetype = FALSE

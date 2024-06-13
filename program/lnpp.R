@@ -44,9 +44,9 @@ scenathon_long <- scenathon %>%
 
 lnpp_colors <- c(
   "lnppmatureforest_expost" = "#006400",
-  "lnppmatureotherland_expost" = "#2563ba",
+  "lnppmatureotherland_expost" = "#FFD700",
   "lnppnewforest" = "#9ACD32",
-  "lnppnewotherland" = "#76c4c4"
+  "lnppnewotherland" = "#FF4500"
 )
 
 lnpp_labels <- c(

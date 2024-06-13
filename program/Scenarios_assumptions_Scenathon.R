@@ -1514,7 +1514,7 @@ for (alpha3 in unique_alpha3) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".png")
   png(
     filename = here(figure_directory, filename),
-    units = "in", height = 14, width = 35, res = 600
+    units = "in", height = 10, width = 35, res = 600
   )
   print(p)
   dev.off()

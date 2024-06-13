@@ -104,10 +104,21 @@ missfood_regions <- read_excel(here("data","20240612_missfood_regions_long.xlsx"
 #   drop_na() %>%
 #   mutate(kcalfeasprod_productgroup = ifelse(kcalfeasprod_productgroup < 0, 0, kcalfeasprod_productgroup))
 
+
+teff_kcal <- read_excel(here("data", "240517_teff_kcal.xlsx"))
+
+
+
+
 consumption <- read_excel(here("data", "20240612_consumption.xlsx")) %>% 
   select(-total_kcal)%>% 
   rbind(missfood_regions) %>% 
   rbind(OTHER) %>% 
+  rbind(teff_kcal) %>% 
+  group_by(Pathway, alpha3, Year, PROD_GROUP) %>% 
+  mutate(kcalfeasprod_productgroup = sum(kcalfeasprod_productgroup)) %>% 
+  ungroup() %>% 
+  unique() %>% 
   group_by(Pathway, alpha3, Year) %>% 
   mutate(total_kcal = sum(kcalfeasprod_productgroup)) %>% 
   ungroup()

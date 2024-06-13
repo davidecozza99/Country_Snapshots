@@ -109,7 +109,7 @@ data_F3 <- data_F3 %>%
   mutate(Sub.Category = na_if(Sub.Category, "NA"))
 
 # Define the output directory
-figure_directory <- here("output", "figures", "figure3", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig1_ghg", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -144,23 +144,23 @@ names(myColorsCO2AFOLU) <- c("CalcLiveAllCO2e", "CalcDeforCO2",
                              "CalcPeatCO2","GHGbiofuels")
 
 countries <- c(
-  #  "ARG",
-  # "AUS"
-  # ,
-  # "BRA"
-  # , "CAN", "CHN", "COL","DEU",
-  # "ETH"
-  # ,"FIN","GBR", "IDN", "IND",
-  # "MEX"
-  # ,"NOR", "RUS", "RWA","SWE",  "USA",
-  # "DNK",
-  # "GRC","TUR", "NPL",
+   "ARG",
+  "AUS"
+  ,
+  "BRA"
+  , "CAN", "CHN", "COL","DEU",
+  "ETH"
+  ,"FIN","GBR", "IDN", "IND",
+  "MEX"
+  ,"NOR", "RUS", "RWA","SWE",  "USA",
+  "DNK",
+  "GRC","TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
 # mex, bra and eth to do separetely from the others
 
-# ALPHA3 <- "R_ASP"
+ALPHA3 <- "MEX"
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -788,8 +788,8 @@ for (ALPHA3 in countries) {
 
   
   # Save the plot as TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
-  tiff(
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
+  png(
     filename = here(figure_directory, filename),
     units = "in", height = 6, width = 16, res = 600
   )

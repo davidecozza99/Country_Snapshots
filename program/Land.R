@@ -66,7 +66,7 @@ land_colors <- c(
   "calcpasture" = "#FF4500",      
   "calcforest" = "#006400",       
   "calcnewforest" = "#9ACD32",    
-  "calcotherland" = "#2563ba",    
+  "calcotherland" = "#FFD700",    
   "calcurban" = "pink",        
   "newotherland" = "#76c4c4",     
   "totalland" = "#2E8B57"         
@@ -128,6 +128,7 @@ for (country in countries) {
       axis.title.x = element_text(color = "black", size = 44),
       axis.text.x = element_text(color = "black", size = 44),
       axis.title.y = element_text(color = "black", size = 44),
+      axis.title.y.right = element_text(color = "black", size = 44, angle = 90),
       axis.text.y = element_text(color = "black", size = 44),
       legend.position = "bottom",
       legend.spacing.x = unit(3, "cm"),

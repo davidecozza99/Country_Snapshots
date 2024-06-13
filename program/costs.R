@@ -130,11 +130,12 @@ for (curr in countries) {
     scale_shape_manual(name = "", values = c("Workers FTE" = 18), labels = c("Workers FTE")) +
     theme_minimal() +
     theme(
-      text = element_text(family = "sans", color = "black", size = 15, face = "bold"),
-      legend.title = element_text(family = "sans", color = "black", size = 16),
-      legend.text = element_text(family = "sans", size = 12),
-      axis.title.x = element_text(color = "black", size = 14),
-      axis.title.y = element_text(color = "black", size = 14),
+      text = element_text(family = "sans", color = "black", size = 14, face = "bold"),
+      # legend.title = element_text(family = "sans", color = "black", size = 16),
+      legend.text = element_text(family = "sans", size = 13),
+      # axis.title.x = element_text(color = "black", size = 14),
+      axis.title.y = element_text(color = "black", size = 13),
+      axis.title.y.right = element_text(color = "black", size = 13, angle = 90),
       legend.position = "bottom",
       panel.spacing = unit(0.05, "cm")
     ) + 
@@ -147,7 +148,7 @@ for (curr in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
   png(
     filename = here(figure_directory, filename),
-    units = "in", height = 5, width = 7, res = 300)
+    units = "cm", height = 15.8, width = 17.4, res = 300)
   print(p_pathway)
   dev.off()
   
