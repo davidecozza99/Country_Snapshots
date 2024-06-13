@@ -81,8 +81,7 @@ df_planted <- top_planted %>%
   filter(year %in% c(2030, 2050))
 
 df_planted2 <- top_planted %>% 
-  rbind(rest_planted) %>% 
-  filter(year > 2015) 
+  rbind(rest_planted)  
 
 figure_directory <- here("output", "figures", "Figure10_CroplandComposition")
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
@@ -226,7 +225,7 @@ for (cur_country in countries) {
          y = "Cropland composition (Mha)",
          fill = ""
     ) +
-    scale_x_continuous(breaks = c(2020, 2050)) +
+    scale_x_continuous(breaks = c(2000, 2020, 2050)) +
     #scale_fill_manual()
     facet_grid(. ~ pathway_id, scales = "free_y",
                labeller = labeller(pathway_id = c(
@@ -253,7 +252,7 @@ for (cur_country in countries) {
     guides(fill = guide_legend(nrow = 2))
   
   # Save the plot as a TIFF file
-  filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
+  filename <- paste0("Fig7_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
     units = "in", height = 4.75, width = 6.2, res = 300)

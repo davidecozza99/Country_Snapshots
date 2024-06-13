@@ -27,8 +27,12 @@ here()
 # data --------------------------------------------------------------------
 
 ### Indicator database
-data <- read.csv(here("data", "240523_FullDataBase.csv")) %>% 
-  filter(tradeajustment == "Yes")
+# data <- read.csv(here("data", "240523_FullDataBase.csv")) %>%
+#   filter(tradeajustment == "Yes")
+data <- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %>% 
+  mutate(ALPHA3 = country) %>% 
+  filter(tradeadjustment == "Yes") 
+  
 
 if (!is.factor(data$pathway)) {
   data$pathway <- as.factor(data$pathway)
@@ -175,7 +179,7 @@ for (ALPHA3 in countries) {
     select(-year)  
   
   kcal_tot <- data %>%
-    select (country, year, pathway, kcal_feas) %>% 
+    select (country, year, pathway, kcal_feas, pou_computed) %>% 
     filter(year == 2050) %>% 
     filter(country == ALPHA3)   
 
@@ -184,6 +188,9 @@ for (ALPHA3 in countries) {
   NC_kcal_tot <- kcal_tot %>% filter(pathway == "NationalCommitments") %>% pull(kcal_feas) %>% unique() %>% round()
   GS_kcal_tot <- kcal_tot %>% filter(pathway == "GlobalSustainability") %>% pull(kcal_feas) %>% unique() %>% round()
   
+  CT_pou <- kcal_tot %>% filter(pathway == "CurrentTrends") %>% pull(pou_computed) %>% unique() %>% round(.,1)
+  NC_pou <- kcal_tot %>% filter(pathway == "NationalCommitments") %>% pull(pou_computed) %>% unique() %>% round(.,1)
+  GS_pou <- kcal_tot %>% filter(pathway == "GlobalSustainability") %>% pull(pou_computed) %>% unique() %>% round(.,1)
   
   
   # Adjust values -----------------------------------------------------------
@@ -266,10 +273,37 @@ for (ALPHA3 in countries) {
   
 
 
-  cat.labs <- c(CurrentTrends = paste0("Current Trends\n2050\n", CT_kcal_tot, " kcal/cap/day"),
-                NationalCommitments = paste0("National Commitments\n2050\n", NC_kcal_tot, " kcal/cap/day"),
-                GlobalSustainability = paste0("Global Sustainability\n2050\n", GS_kcal_tot, " kcal/cap/day")
+  cat.labs <- c(CurrentTrends = paste0("Current Trends\n"),
+                NationalCommitments = paste0("National Commitments\n"),
+                GlobalSustainability = paste0("Global Sustainability\n")
   )
+  
+  # cat.labs2 <- c(CurrentTrends_pou = paste0("PoU:\n", CT_pou, " %"),
+  #                NationalCommitments_pou = paste0("PoU:\n", NC_pou, " %"),
+  #                GlobalSustainability_pou = paste0("Prevalence of Undernourishment:\n", GS_pou, " %")
+  # )
+  # 
+  
+  ## table with average kcal and PoU information
+  
+  
+  
+  p2 <- kcal_tot %>% 
+    rename() %>% 
+    mutate("kcal/cap/day" = round(kcal_feas),
+           PoU = round(pou_computed, 1)) %>% 
+    pivot_longer(c(`kcal/cap/day`, PoU), names_to = "layer", values_to = "label") %>% 
+    mutate(label = ifelse(layer == "PoU", ifelse(is.na(label), "<2.5%", paste0(label, "%")), label)) %>% 
+    mutate(layer = ifelse(layer == "PoU", "PoU", layer)) %>% 
+    ggplot(aes(x = 1)) +
+    geom_text(aes(y = factor(layer, c("kcal/cap/day", "PoU")), label = label), size = 6) +
+    labs(y = "", x = NULL) +
+    theme_minimal() +
+    theme(axis.line = element_blank(), axis.ticks = element_blank(), axis.text.x = element_blank(),
+          panel.grid = element_blank(), strip.text = element_blank(),
+          axis.text.y = element_text(size = 14)) +
+    facet_grid(~pathway)
+  
   
   myLinetype <- c("dashed", "dotted", "solid")
   names(myLinetype) <- c("Average", "Minimum", "Maximum")
@@ -290,6 +324,8 @@ for (ALPHA3 in countries) {
     theme(legend.text = element_text(size = 14))
   
   p_legend_food <- cowplot::get_legend(p_legend_food)
+  
+ 
   
   p_legend_rec <- ggplot(data = finaldata, aes(x = PROD_GROUP, y = newkcal, fill = PROD_GROUP)) +
     geom_col(position = "dodge",
@@ -315,8 +351,8 @@ for (ALPHA3 in countries) {
                         name = "",
                         labels = c(Maximum = "Max. Recommended",
                                    Minimum = "Min. Recommended")) + 
-    guides(colour=guide_legend(nrow = 1),
-           linetype = guide_legend(nrow = 1)) +
+    guides(colour=guide_legend(nrow = 2),
+           linetype = guide_legend(nrow = 2)) +
     theme_minimal() +
     theme(legend.text = element_text(size = 14))
   
@@ -330,6 +366,7 @@ for (ALPHA3 in countries) {
   myColors_Food <- c(myColors_Food, myColors_Food2, myColors_Food3)
   
   finaldata$Pathway <- factor(finaldata$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
+  finaldata$Pathway_pou <- factor(paste0(finaldata$Pathway, "_pou"), levels = c("CurrentTrends_pou", "NationalCommitments_pou", "GlobalSustainability_pou"))
   
   
   p <- ggplot(data = finaldata, aes(x = PROD_GROUP, y = newkcal, fill = group, group = PROD_GROUP)) +
@@ -338,7 +375,7 @@ for (ALPHA3 in countries) {
              show.legend = F) +
     theme(axis.title.x = element_blank()) +
     coord_polar() +
-    facet_grid(Pathway ~ ., 
+    facet_grid(.~Pathway, 
                switch = "y",
                labeller = labeller(Pathway = cat.labs)) +
     geom_segment(aes(x = 0.5, y = 30,
@@ -371,17 +408,33 @@ for (ALPHA3 in countries) {
           strip.text = element_text(size = 15, family = "sans"),
           strip.text.y.left = element_text(angle = 0),
           strip.placement = "outside",
-          plot.margin = margin(t = -10, b= -20))
+          plot.margin = margin(t = -100, b= -150))
   
-  p <- plot_grid(p, p_legend_rec, p_legend_food,
-                 nrow = 3, rel_heights = c(1.2, 0.1, 0.30))
+  # p <- plot_grid(p, p_legend_rec, p_legend_food,
+  #                ncol = 1, 
+  #                nrow = 2,
+  #                rel_heights = c(1.2, 0.1, 0.30))
+  
+  #p / p2 +  plot_layout(heights = c(7, 1))
 
+  empty_plot <- ggplot()+theme_void()
+  
+  p <- plot_grid(
+    # p, 
+    plot_grid(
+      plot_grid(empty_plot, p, nrow = 1, rel_widths = c(0.40, 3)), 
+      p2, nrow = 2, rel_heights = c(7, 2)),
+    plot_grid(empty_plot, p_legend_rec, p_legend_food, nrow = 3, rel_heights = c(0.10, 0.15, 0.75)),
+    nrow = 1,
+    rel_heights = c(1),  
+    rel_widths = c(4, 1.75) 
+  )
 
   # Save the plot as TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
+  filename <- paste0("Fig5_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
   png(
     filename = here(figure_directory, filename),
-    units = "in", height = 9, width = 4.9, res = 600
+    units = "in", height = 4, width = 13, res = 300
   )
   print(p)
   dev.off()

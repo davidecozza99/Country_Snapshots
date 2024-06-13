@@ -261,7 +261,7 @@ for (ALPHA3 in countries) {
   
   
   
-  cat.labs <- c(CurrentTrends = paste0("Historical intake\n2020\n", CT_kcal_tot, " kcal/cap/day")
+  cat.labs <- c(CurrentTrends = paste0(CT_kcal_tot, " kcal/cap/day")
   )
   
   myLinetype <- c("dashed", "dotted", "solid")
@@ -386,7 +386,7 @@ for (ALPHA3 in countries) {
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
   tiff(
     filename = here(figure_directory, filename),
-    units = "in", height = 3.25, width = 9, res = 600
+    units = "in", height = 3.25, width = 9, res = 300
   )
   print(p)
   dev.off()
