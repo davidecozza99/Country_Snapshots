@@ -788,10 +788,10 @@ for (ALPHA3 in countries) {
 
   
   # Save the plot as TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
-  png(
-    filename = here(figure_directory, filename),
-    units = "in", height = 6, width = 16, res = 600
+  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".pdf")
+  pdf(
+    file = here(figure_directory, filename),
+    height = 6, width = 16
   )
   print(p_final)
   dev.off()

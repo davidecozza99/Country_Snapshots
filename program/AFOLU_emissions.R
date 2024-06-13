@@ -202,7 +202,8 @@ for (country in countries) {
   guides(
     fill = guide_legend(override.aes = list(size = 10), keyheight = unit(2, "cm"), keywidth = unit(2, "cm")),
     color = guide_legend(override.aes = list(size = 10))
-  )
+  ) +
+    theme(legend.spacing.x = unit(1,'cm'))
   
   # Save the plot as a TIFF file
   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
