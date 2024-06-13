@@ -1511,7 +1511,7 @@ for (alpha3 in unique_alpha3) {
   
   p <- create_plot(data_filtered)
   
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", alpha3), ".png")
+  filename <- paste0("Fig3_",format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", alpha3), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 10, width = 35, res = 600
