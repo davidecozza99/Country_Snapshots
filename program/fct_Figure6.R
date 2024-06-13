@@ -422,7 +422,7 @@ for (ALPHA3 in countries) {
   p <- plot_grid(
     # p, 
     plot_grid(
-      plot_grid(empty_plot, p, nrow = 1, rel_widths = c(0.40, 3)), 
+      plot_grid(empty_plot, p, nrow = 1, rel_widths = c(0.55, 3)), 
       p2, nrow = 2, rel_heights = c(7, 2)),
     plot_grid(empty_plot, p_legend_rec, p_legend_food, nrow = 3, rel_heights = c(0.10, 0.15, 0.75)),
     nrow = 1,

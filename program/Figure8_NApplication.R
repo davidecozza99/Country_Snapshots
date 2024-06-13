@@ -95,8 +95,8 @@ for (cur_country in countries) {
     guides(fill = guide_legend(nrow = 3))
   
   # Save the plot as a TIFF file
-  filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".tiff")
-  tiff(
+  filename <- paste0("Fig11_",format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", cur_country), ".png")
+  png(
     filename = here(figure_directory, filename),
     units = "cm", height = 15.8, width = 17.4, res = 300)
     #units = "in", height = 3.657407, width = 4.023148, res = 96)
