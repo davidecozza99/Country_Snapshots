@@ -97,7 +97,7 @@ FOOD_missing <- FOOD_missing %>%
 
 
 # Define the output directory
-figure_directory <- here("output", "figures", "diet_hist", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig2", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -383,8 +383,8 @@ for (ALPHA3 in countries) {
   p
   
   #Save the plot as TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".tiff")
-  tiff(
+  filename <- paste0("Fig2_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
+  png(
     filename = here(figure_directory, filename),
     units = "in", height = 3.25, width = 9, res = 300
   )
