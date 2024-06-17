@@ -77,8 +77,8 @@ OTHER <- read_excel(here("data", "20240612_OTHER.xlsx"))
 # write.xlsx(missfood_regions_long, file = here("data", paste0(gsub("-", "",Sys.Date()), "_","missfood_regions_long.xlsx")))
 
 missfood_regions <- read_excel(here("data","20240612_missfood_regions_long.xlsx"))
-
-
+# 
+# 
 # scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
 #   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>%
 #   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>%
@@ -103,10 +103,9 @@ missfood_regions <- read_excel(here("data","20240612_missfood_regions_long.xlsx"
 #   unique %>%
 #   drop_na() %>%
 #   mutate(kcalfeasprod_productgroup = ifelse(kcalfeasprod_productgroup < 0, 0, kcalfeasprod_productgroup))
-
-
+# 
+# 
 teff_kcal <- read_excel(here("data", "240517_teff_kcal.xlsx"))
-
 
 
 
