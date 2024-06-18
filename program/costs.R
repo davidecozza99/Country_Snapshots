@@ -2,7 +2,6 @@
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -41,8 +40,9 @@ product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>%
     pesticidecost = sum(pesticidecost, na.rm = T)/1000
   ) %>% 
   group_by(country, Pathway, year)  %>% 
+  #express CHN values in billion 
   mutate(
-  fertilizercost = if_else(country == "CHN", fertilizercost/1000, fertilizercost ),
+  fertilizercost = if_else(country == "CHN", fertilizercost/1000, fertilizercost),
   labourcost = if_else(country == "CHN", labourcost/1000, labourcost),
   machineryrunningcost = if_else(country == "CHN", machineryrunningcost/1000, machineryrunningcost),
   dieselcost = if_else(country == "CHN", dieselcost/1000, dieselcost),
@@ -58,9 +58,7 @@ scenathon_long <- product %>%
 
 
 
-
-
-
+# Aesthetics ---------------------------------------------------------------
 # Define the colors
 costs_colors <- c(
   "workersfte" = "#FFD700", 
@@ -106,9 +104,8 @@ plot_list <- list()
 for (curr in countries) {
   # Subset data for the specific country
   country_data <- subset(scenathon_long, curr == country)
-  
+  #express CHN values in Billion USD
   y_axis_label <- ifelse(curr == "CHN", "billion USD", "million USD")
-  
   
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = as.factor(year), y = Value, fill = CostType)) +
@@ -131,9 +128,7 @@ for (curr in countries) {
     theme_minimal() +
     theme(
       text = element_text(family = "sans", color = "black", size = 14, face = "bold"),
-      # legend.title = element_text(family = "sans", color = "black", size = 16),
       legend.text = element_text(family = "sans", size = 13),
-      # axis.title.x = element_text(color = "black", size = 14),
       axis.title.y = element_text(color = "black", size = 13),
       axis.title.y.right = element_text(color = "black", size = 13, angle = 90),
       legend.position = "bottom",
@@ -144,7 +139,7 @@ for (curr in countries) {
       shape = guide_legend(override.aes = list(color = "black", size = 3))
     )
   
-  # Save the plot as a TIFF file
+  # Save the plot as a PNG file
   filename <- paste0("Fig12_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
   png(
     filename = here(figure_directory, filename),

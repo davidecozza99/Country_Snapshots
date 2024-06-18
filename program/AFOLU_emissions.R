@@ -31,9 +31,6 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
          calcdeforco2, calcotherlucco2, 
          calcpeatco2,
          calcsequestaband, calcsequestaffor) %>% 
-  # filter(Year %in% c(2015, 2020,2025,2030)) %>% 
-  # select(alpha3, pathway, Year,calcdeforco2) %>% 
-  # filter(alpha3 != "BRA") %>% 
   group_by(Year, pathway, alpha3) %>% 
   mutate(N2O_crop = sum(calccropn2o)) %>% 
   mutate(CH4_crop = sum(calccropch4)) %>% 
@@ -65,24 +62,6 @@ df_long <- df_long %>%
   )) 
 
 
-# df_long2 <- melt(scenathon, id.vars = c("Year", "pathway"), variable.name = "Gas", value.name = "Emission") 
-# df_long2$Gas <- as.character(df_long2$Gas)
-
-
-# df_long2 <- df_long2 %>% 
-#   mutate(Gas_type = case_when(
-#     startsWith(Gas, "CO2") ~ "CO2",
-#     startsWith(Gas, "CH4") ~ "CH4",
-#     startsWith(Gas, "N2O") ~ "N2O",
-#     TRUE ~ NA_character_
-#   )) %>% 
-#   group_by(Year, pathway, Gas_type) %>% 
-#   summarize(Emission_sum = sum(Emission, na.rm = TRUE)) %>% 
-#   ungroup() %>% 
-#   pivot_wider(names_from = Gas_type, values_from = Emission_sum)
-# 
-# df_long_final <- left_join(df_long, df_long2) %>% 
-#   select(-Gas_type)
 
 
 #Preparing aesthetic for the plot ----------------------------------------------
@@ -104,30 +83,6 @@ gas_labels <- c(
   "CO2_aband" = "CO2 Abandoned Agr. Land", "CO2_affor" = "CO2 Afforestation", 
   "CO2_peat" = "CO2 Peatland", "CO2_bio" ="Savings from Biofuels")
 
-# 
-# gas_colors <- c(
-#   "N2O_crop" = "steelblue",
-#   "N2O_live" = "lightblue",
-#   "CH4_crop" = "#7B1FA2",
-#   "CH4_live" = "#BA68C8",
-#   "CO2_crop" = "#66BB6A",
-#   "CO2_def" = "#4CAF50",
-#   "CO2_other" = "#388E3C",
-#   "CO2_peat" = "#2E7D32",
-#   "CO2_aband" = "#1B5E20",
-#   "CO2_affor" = "#004D40",
-#   "CO2_bio"= "#003300"
-# )
-# 
-# 
-# gas_labels <- c(
-#            "N2O_crop" = "N2O from Crop", "N2O_live" = "N2O from Livestock \n",
-#            "CH4_crop" = "CH4 from Crop", "CH4_live" = "CH4 from Livestock \n",
-#            "CO2_crop" = "CO2 from Crop",  "CO2_def" = "CO2 from Deforestation", 
-#            "CO2_other" ="CO2 from Other Land Use", "CO2_peat" = "CO2 from Peatland",
-#            "CO2_aband" = "CO2 from Abandoned Agr. Land", "CO2_affor" = "CO2 from Afforestation", 
-#            "CO2_bio" ="CO2 savings from Biofuels"
-#   )
 
 df_long$Gas <- factor(df_long$Gas, levels = c(
   "N2O_live", "CH4_live", 
@@ -145,31 +100,17 @@ df_long$Gas <- factor(df_long$Gas, levels = c(
 unique_pathways <- unique(df_long$pathway)
 df_long$pathway <- factor(df_long$pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
-
-# df_long_land <- df_long %>% 
-#   filter((Gas %in% c("CO2_def", "CO2_other", "CO2_peat", "CO2_aband", "CO2_affor", "CO2_bio")))
-# 
-# df_long_agri <- df_long %>% 
-#   filter((Gas %in% c("N2O_crop", "N2O_live","CH4_crop", "CH4_live","CO2_crop")))
 figure_directory <- here("output", "figures", "fig8_ghg", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 #List countries
 countries <- c(
-  "ARG",
-  "AUS",
-  "BRA"
-  , "CAN", "CHN", "COL","DEU",
-  "ETH"
-  ,"FIN","GBR", "IDN", "IND",
-  "MEX"
-  ,"NOR", "RUS", "RWA","SWE",  "USA",
-  "DNK",
-  "GRC","TUR", "NPL",
+  "ARG", "AUS", "BRA", "CAN", "CHN", "COL", "DEU",
+  "ETH", "FIN", "GBR", "IDN", "IND","MEX", "NOR",
+  "RUS", "RWA", "SWE", "USA", "DNK", "GRC", "TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
-
 
 # Loop through each country
 for (country in countries) {
@@ -181,7 +122,7 @@ for (country in countries) {
   p <- ggplot(country_data, aes(x = Year, y = Emission, fill = Gas)) +
     geom_area() +
     labs(
-      x = "", y = "MtCO2e", fill = "")+
+      x = "", y = "MtCO2e", fill = "") +
     scale_fill_manual(values = gas_colors, labels = gas_labels, breaks = names(gas_labels)) +
     # scale_y_continuous(breaks = seq(-10, 20, by = 5)) +
     facet_grid(. ~ pathway, scales = "free_y",
@@ -205,7 +146,7 @@ for (country in countries) {
   ) +
     theme(legend.spacing.x = unit(1,'cm'))
   
-  # Save the plot as a TIFF file
+  # Save the plot as a PNG file
   filename <- paste0("Fig8_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),

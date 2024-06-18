@@ -3,7 +3,6 @@
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -35,13 +34,13 @@ scenathon<- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %
   select(alpha3,Pathway, Year, lnppmatureforest_expost, lnppmatureotherland_expost,	lnppnewforest, lnppnewotherland) 
   
 
-# 
 scenathon_long <- scenathon %>%
   pivot_longer(cols = c(lnppmatureforest_expost, lnppmatureotherland_expost,	lnppnewforest, lnppnewotherland), names_to = "LandType", values_to = "Value") %>%
   ungroup() %>% 
   mutate(Value = Value/1000)
 
 
+# Aesthetics ------------------------------------------------------------------
 lnpp_colors <- c(
   "lnppmatureforest_expost" = "#006400",
   "lnppmatureotherland_expost" = "#FFD700",

@@ -32,7 +32,6 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   filter(iteration == "5") %>% 
   select(alpha3, Pathway, Year, calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, protectedareasforest, protectedareasother, protectedareasothernat ) %>%
   mutate(PA =protectedareasforest + protectedareasother + protectedareasothernat) %>% 
-  # filter(!Year %in% c("2000", "2005", "2010", "2015", "2025", "2035", "2045")) %>%
   mutate(across(c(calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, PA), ~ . / 1000)) %>% 
   select(-protectedareasforest,- protectedareasother, -protectedareasothernat) %>% 
   mutate(calccropland = (ifelse(alpha3 == "SWE",
@@ -150,7 +149,7 @@ for (country in countries) {
       color = guide_legend(override.aes = list(size = 10))
     )
   
-  # Save the plot as a TIFF file
+  # Save the plot as a PNG file
   filename <- paste0("Fig6_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),

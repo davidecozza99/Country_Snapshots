@@ -2,7 +2,6 @@
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -23,11 +22,14 @@ conflicted::conflict_prefer("mutate", "dplyr")
 conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
 here()
-# file --------------------------------------------------------------------
+
+
+
+# file -------------------------------------------------------------------------
 
 file <- list.files(path = here("data", "Calcs_new"))
 
-# data --------------------------------------------------------------------
+# data -------------------------------------------------------------------------
 df <- read.csv(here("data", "240523_FullDataBase.csv")) %>% 
   dplyr::filter(tradeajustment == "No")
 product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>% 
@@ -52,15 +54,8 @@ fao_prod$Item <- ifelse(fao_prod$Item == "Rice and products", "Rice (Milled Equi
                                              ifelse(fao_prod$Item == "Freshwater Fish", "Fish Seafood + (Total)",
                                                     ifelse(fao_prod$Item == "Meat, Other", "Meat Other",
                                                            ifelse(fao_prod$Item == "Offals, Edible", "Offals Edible",
-                                                            
                                                                 fao_prod$Item)))))))
- 
 
-
-# mapping_animalprod <- read.csv(here("data", "FAOSTAT_mapping_animalprod.csv"))
-
-# fao_prod <- fao_prod %>% 
-#   inner_join(mapping_animalprod, by = "Item")
 
 mapping <- read_excel(here("data",  "mapping_GAMS_FAO_products.xlsx"))
 mapping[which(mapping$FAO == "Groundnuts (Shelled Eq)"), "FAO"] <- "Groundnuts"
@@ -76,14 +71,7 @@ fao_prod[which(fao_prod$Area == "United Kingdom of Great Britain and Northern Ir
 
 
 product_dt <- left_join(product,
-                          # rename(alpha3 = country) %>% 
-                          # mutate(alpha3 = as.character(alpha3)) %>% 
-                          # select(#-id, 
-                          #   -scenathon_id), 
                         df,
-                          # rename(alpha3 = country) %>% 
-                          # select(#-id, 
-                          #   -scenathon_id),
                         by = c("country", "pathway", "year")) %>% 
   rename(ALPHA3 = country) %>% 
   mutate(pathway = recode(pathway, "CurrentTrends" = "CurrentTrend")) %>% 
@@ -92,7 +80,7 @@ product_dt <- left_join(product,
   unique()
 
 
-##Compute kcal/kg data from FAO 2020
+# Compute kcal/kg data from FAO 2020 -------------------------------------------
 df_fao <- fao_prod %>%
   left_join(mapping %>% select(FPRODUCT, FAO) %>% unique(), by = c("Item" = "FAO")) %>%
   mutate(iso3c = countrycode::countrycode(sourcevar = Area, origin = "country.name", destination = "iso3c")) %>%
@@ -123,7 +111,6 @@ df_fao <- (df_fao %>%
              mutate(kcal.kg = ifelse(kg!=0,
                                      kcal/kg,
                                      NA)) %>% 
-             # mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "RMECAS", ALPHA3)) %>% 
              data.frame()) 
 
 product_df <- left_join(product_dt, df_fao, by = c("ALPHA3" = "ALPHA3", "product" = "FPRODUCT")) %>%
@@ -131,8 +118,6 @@ product_df <- left_join(product_dt, df_fao, by = c("ALPHA3" = "ALPHA3", "product
 
 
 
-
-#####################  
 #Computing Population and Kcal target relative change 2020-2050
 
 df_change <- df %>% 
@@ -144,13 +129,10 @@ df_change <- df %>%
   mutate(Population_change = round(population_2050/population_2020, 2)) %>% 
   mutate(kcal_targ_change = round(kcal_targ_2050/kcal_targ_2020,2)) %>% 
   select(ALPHA3, Pathway, Population_change, kcal_targ_change) %>% 
-  # mutate(ALPHA3 = gsub("R_", "", ALPHA3)) %>% 
   mutate(Pathway = recode(Pathway, "CurrentTrends" = "CurrentTrend")) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   data.frame() %>% 
   mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "R_NMC", ALPHA3))  
-
-  
 
 
 
@@ -174,7 +156,6 @@ product_tot <- product_df %>%
   data.frame() %>% 
   ## manually put lower for NPL because way too high and can't see the others
   mutate(Export_quantity_change = ifelse(ALPHA3 == "NPL", 4, Export_quantity_change)) %>%
-  # mutate(Import_quantity_change = ifelse(ALPHA3 == "ETH", 4, Import_quantity_change)) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
   mutate(ALPHA3 = ifelse(ALPHA3 == "ASP", "R_ASP",
                          ifelse(ALPHA3 == "CSA", "R_CSA",
@@ -186,9 +167,7 @@ product_tot <- product_df %>%
 
 
 
-
-# pdty_livestock ----------------------------------------------------------
-
+# Extracting pdty_livestock from all the calculators --------------------- only run when needed
 # db_full <- data.frame()
 # 
 # for (cur_file in file){
@@ -234,38 +213,6 @@ product_tot <- product_df %>%
 db_full <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedPdtyLivestock.xlsx"))
 
 
-
-########### OLD METHOD ####################
-# #Computing Livestock productivity in t/TLU
-# db_full_agg <- db_full %>%
-#   # use the herd in TLU to later compute a weighted average
-#   mutate(weight_pdty = herd*pdtyanim) %>%
-#   group_by(ALPHA3, Pathway, YEAR) %>%
-#   dplyr::summarise(weight_pdty = sum(weight_pdty, na.rm = T),
-#                    herd = sum(herd, na.rm = T)) %>%
-#   #weighted average
-#   mutate(pdty = weight_pdty/herd) 
-# # %>% 
-# #   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "RMECAS", ALPHA3))  
-# #   
-# 
-# 
-# 
-# #here the productivity can also increase or decrease if a country changes the proportion each animal represents
-# #Computing livestock productivity relative change 2020-2050
-# 
-# db_change_Live_Prod <- db_full_agg %>% 
-#   mutate(var_pivot = paste0("pdty_", YEAR)) %>% 
-#   select(var_pivot, Pathway, ALPHA3, pdty) %>% 
-#   pivot_wider(names_from = var_pivot,
-#               values_from = c(pdty)) %>% 
-#   #relative change between 2050 and 2020
-#   mutate(pdty_live_change = round(pdty_2050/pdty_2020, 2)) %>% 
-#   select(ALPHA3, Pathway, pdty_live_change) %>% 
-#   mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "R_NMC", ALPHA3))  
-
-
-
 # Extract herd values for the year 2020
 herd_2020 <- db_full %>%
   filter(YEAR == 2020) %>%
@@ -298,7 +245,9 @@ db_change_Live_Prod <- db_full_agg %>%
   mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "R_NMC", ALPHA3))  
 
 
-# Ruminant density --------------------------------------------------------
+
+
+# Extracting Ruminant density from all the calculators ------------------ only run when needed
 # 
 # db_full2 <- data.frame()
 # 
@@ -341,25 +290,6 @@ db_change_Live_Prod <- db_full_agg %>%
 # write.xlsx(db_full2 %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedRumDensity.xlsx")), row.names = F)
 db_full2 <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedRumDensity.xlsx")) 
 
-############ OLD METHOD ###############
-# db_full2_agg_old <- db_full2 %>%
-#   # use the pasture surface in ha to later compute a weighted average
-#   mutate(weight_dens = Pasture*RumDensity) %>%
-#   group_by(ALPHA3, Pathway, YEAR) %>%
-#   dplyr::summarise(weight_dens = sum(weight_dens, na.rm = T),
-#                    Pasture = sum(Pasture, na.rm = T)) %>%
-#   #weighted average
-#   mutate(density = weight_dens/Pasture)
-# 
-# 
-# db_change_RumDensity <- db_full2_agg %>%
-#   mutate(var_pivot = paste0("density_", YEAR)) %>%
-#   select(var_pivot, Pathway, ALPHA3, density) %>%
-#   pivot_wider(names_from = var_pivot,
-#               values_from = c(density)) %>%
-#   #relative change between 2050 and 2015
-#   mutate(density_change = round(density_2050/density_2020, 2)) %>%
-#   select(ALPHA3, Pathway, density_change)
 
 
 # Extract herd values for the year 2020
@@ -393,11 +323,7 @@ db_change_RumDensity <- db_full2_agg %>%
 
 
 
-# Crops productivity ------------------------------------------------------
-#  sharea_rf	sharea_irr  IrrPdtyShift	RfPdtyShift
-
-
-
+# Extracting Crops productivity from all the calculators ------------------ only run when needed
 # db_full_crop <- data.frame()
 # 
 # for (cur_file in file){
@@ -442,45 +368,17 @@ db_change_RumDensity <- db_full2_agg %>%
 db_full_crop <- readxl::read_excel(here("data", "extracted_scenathon", "20240527_ExtractedPdtyCrop.xlsx")) 
 
 
-# db_full_crop_agg <- db_full_crop %>%
-#   #Use harvested area as weight
-#   mutate(weight_pdty = Harvarea*Pdty) %>%
-#   group_by(ALPHA3, Pathway, YEAR) %>%
-#   dplyr::summarise(weight_pdty = sum(weight_pdty, na.rm = T),
-#                    Harvarea = sum(Harvarea, na.rm = T)) %>%
-#   #weighted average
-#   mutate(pdty = weight_pdty/Harvarea)  
-# 
-# db_change_crop <- db_full_crop_agg %>% 
-#   mutate(var_pivot = paste0("pdty_", YEAR)) %>% 
-#   select(var_pivot, Pathway, ALPHA3, pdty) %>% 
-#   pivot_wider(names_from = var_pivot,
-#               values_from = c(pdty)) %>% 
-#   #relative change betwwen 2050 and 2015
-#   mutate(pdty_crop_change = round(pdty_2050/pdty_2020, 2)) %>% 
-#   select(ALPHA3, Pathway, pdty_crop_change)
-# 
-
-
-
 # Extract herd values for the year 2020
 sharearea_2020 <- db_full_crop %>%
   filter(year == 2020) %>%
   select(ALPHA3, Pathway, crop, sharea_rf_2020 = sharea_rf, sharea_irr_2020 = sharea_irr, harvarea_2020 = harvarea)
 
 
-# # Extract herd values for the year 2020
-# Harvarea_2020 <- db_full_crop %>%
-#   filter(year == 2020) %>%
-#   select(ALPHA3, Pathway, crop, Harvarea_2020 = Harvarea)
-
 # Join the 2020 herd values back to the main dataframe
 db_full_with_sharearea_2020 <- db_full_crop %>%
   left_join(sharearea_2020, by = c("ALPHA3", "Pathway", "crop"), relationship = "many-to-many") %>% 
   select(-sharea_rf, - sharea_irr, -harvarea) %>% 
   unique()
-
-
 
 db_full_crop_agg <- db_full_with_sharearea_2020 %>%
   #computing pdty shifter by product 
@@ -507,10 +405,7 @@ db_change_crop <- db_full_crop_agg %>%
 
 
 
-
-
-
-# Expansion ----------------------------------------------------------------
+# Extracting Productive land expansion from all the calculators -------------- only run when needed
 
 # db_full_expansion <- data.frame()
 # 
@@ -568,8 +463,6 @@ db_change_crop <- db_full_crop_agg %>%
 # write.xlsx(db_full_expansion %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedExpansion.xlsx")), row.names = F)
 db_full_expansion <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedExpansion.xlsx")) %>% 
   mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "NMC", ALPHA3)) 
-# %>% 
-#   mutate(ALPHA3 = ifelse(nchar(ALPHA3) == 4, stringr::str_sub(ALPHA3, 2, 4), ALPHA3))
 
 #Productive land expansion constraint in Million ha 
 db_change_Expansion <- db_scenarios %>% 
@@ -582,8 +475,7 @@ db_change_Expansion <- db_scenarios %>%
   mutate(ALPHA3 = ifelse(ALPHA3 == "RMECAS", "R_NMC", ALPHA3))  
 
 
-
-# Afforestation -----------------------------------------------------------
+# Extracting Afforestation from all calculators ------------------------ only run when needed
 
 # db_full_affor <- data.frame()
 # 
@@ -654,7 +546,6 @@ db_full_affor <- read_excel(here("data", "extracted_scenathon", "20240523_Extrac
   mutate(afforscen = ifelse(ALPHA3 == "TUR" & afforscen == "BonnChallenge", "NeutralityCountry", afforscen))
 
 
-
 #Extract the afforestation target
 db_full_afforestation_agg <- db_scenarios %>% 
   mutate(ALPHA3 =ifelse(ALPHA3 == "RMECAS", "NMC", 
@@ -667,8 +558,6 @@ db_full_afforestation_agg <- db_scenarios %>%
   mutate(Year = as.numeric(Year)) %>% 
   mutate(NewForest = as.numeric(newforest)) %>% 
   select(ALPHA3, Pathway, Year, NewForest)
-
-
 
 
 #Computing afforestation absolute difference 2020 - 2050 in Million ha (Mha)   
@@ -685,8 +574,7 @@ db_change_afforestation <- db_full_afforestation_agg %>%
 
 
 
-
- # Food Waste --------------------------------------------------------
+ # Extracting Food Waste from all calculators ------------------------ only run when needed
 
 # db_full_waste <- data.frame()
 # 
@@ -732,7 +620,6 @@ db_change_afforestation <- db_full_afforestation_agg %>%
 
 
 db_full_waste <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedFoodWaste.xlsx")) %>% 
-  # mutate(ALPHA3 = ifelse(nchar(ALPHA3) == 4, stringr::str_sub(ALPHA3, 2, 4), ALPHA3)) %>% 
   rename(FPRODUCT = fproduct) %>% 
   mutate(FPRODUCT = ifelse(FPRODUCT == "MILK", "milk", FPRODUCT))
 
@@ -765,7 +652,7 @@ db_change_foodwaste <- db_full_waste %>%
 
 
 # Protected Areas -----------------------------------------------------------
-#Extracting Total Land
+# Extracting Total Land
 
 total_land <- df %>% 
   select(ALPHA3, totalland, year) %>% 
@@ -773,7 +660,6 @@ total_land <- df %>%
 
 
 #Extracting data from the Calculators - only run when needed
-# 
 # 
 # db_pa <- data.frame()
 # 
@@ -826,7 +712,6 @@ total_land <- df %>%
 # 
 # write.xlsx(db_pa %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedPA.xlsx")), row.names = F)
 
-### Manually added values for MEX and SWE ###
 db_pa <- readxl::read_excel(here("data", "extracted_scenathon", "20240427_ExtractedPA.xlsx"))
 
 db_change_pa <- db_pa %>%
@@ -842,11 +727,6 @@ db_change_pa <- db_pa %>%
   select(-Total_PA, -totalland, -year ) %>% 
   unique() 
   
-
-
-
-
-
 
 #Extracting data from the Calculators - only run when needed
 
@@ -892,7 +772,6 @@ db_change_pa <- db_pa %>%
 # write.xlsx(db_irr %>% data.frame(), file = here("data", "extracted_scenathon", paste0(gsub("-", "",Sys.Date()), "_ExtractedIrr.xlsx")), row.names = F)
 
 
-
 db_irr <- readxl::read_excel(here("data", "extracted_scenathon", "20240527_ExtractedIrr.xlsx")) %>% 
   dplyr::filter(year %in% c(2020,2050)) %>%  
   dplyr::filter(complete.cases(.)) # Eliminate rows with any NA values
@@ -935,37 +814,8 @@ db_change_irr <- db_irr_agg %>%
 
 
 
-####### OLD METHOD ###########
-# db_irr <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedIrr.xlsx")) %>% 
-#   dplyr::filter(YEAR %in% c(2020,2050))
-# 
-# db_irr_agg <- db_irr %>%
-#   group_by(ALPHA3, Pathway, YEAR) %>%
-#   mutate(total_harvarea = sum(Harvarea, na.rm = TRUE)) %>%
-#   mutate(total_irrarea = sum(IrrHarvArea, na.rm = TRUE)) %>% 
-#   mutate(share_irr = total_irrarea/total_harvarea) %>% 
-#   ungroup() %>% 
-#   select(-CROP, -Harvarea, -IrrHarvArea, -total_harvarea, -total_irrarea ) %>% 
-#   unique() 
-# 
-# 
-# db_change_irr <- db_irr_agg %>% 
-#   mutate(var_pivot = paste0("irr_", YEAR)) %>% 
-#   select(var_pivot, Pathway, ALPHA3, share_irr ) %>% 
-#   pivot_wider(names_from = var_pivot,
-#               values_from = share_irr) %>% 
-#   mutate(irr_change = (irr_2050-irr_2020)) %>%
-#   mutate(across(starts_with("irr_"), as.numeric)) %>%
-#   select(ALPHA3, Pathway, irr_change) %>% 
-#   data.frame() %>% 
-#   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3)) %>% 
-#   mutate(irr_change = ifelse(ALPHA3 == "GRC", 0, irr_change ))
 
-
-
-
-
-#Extracting data from the Calculators - only run when needed
+#Extracting Agroecological practises data from the Calculators ------- only run when needed
 
 # db_agrprac <- data.frame()
 # 
@@ -1044,41 +894,7 @@ db_change_agrprac <- db_agrprac_agg %>%
   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3))
 
 
-############# OLD METHOD ##############
-# db_agrprac <- readxl::read_excel(here("data", "extracted_scenathon", "20240523_ExtractedAgrprac.xlsx")) %>% 
-#   dplyr::filter(YEAR %in% c(2020,2050))
-# 
-# db_agrprac_agg <- db_agrprac %>%
-#   group_by(ALPHA3, Pathway, YEAR) %>%
-#   mutate(total_harvarea = sum(Harvarea, na.rm = TRUE)) %>%
-#   mutate(total_agrprac = sum(AreaAgroeco, na.rm = TRUE)) %>% 
-#   mutate(share_agrprac = total_agrprac/total_harvarea) %>% 
-#   ungroup() %>% 
-#   select(-CROP, -SPAMgroup, -Harvarea, -AreaAgroeco, -total_harvarea, -total_agrprac ) %>% 
-#   unique() 
-# 
-# 
-# db_change_agrprac <- db_agrprac_agg %>% 
-#   mutate(var_pivot = paste0("agrprac_", YEAR)) %>% 
-#   select(var_pivot, Pathway, ALPHA3, share_agrprac ) %>% 
-#   pivot_wider(names_from = var_pivot,
-#               values_from = share_agrprac) %>% 
-#   mutate(agrprac_change= (agrprac_2050-agrprac_2020)) %>%
-#   mutate(across(starts_with("agrprac_"), as.numeric)) %>%
-#   select(ALPHA3, Pathway, agrprac_change) %>% 
-#   data.frame() %>% 
-#   mutate(ALPHA3 = ifelse(ALPHA3 == "NMC", "R_NMC", ALPHA3))
-
-
-
-
-
-
-
-
-
-
-#Extracting data from the Calculators - only run when needed
+#Extracting Biofuel data from the Calculators - only run when needed
 
 # db_biofuel <- data.frame()
 # 
@@ -1394,16 +1210,6 @@ melted$sign <- ifelse(melted$value < 0,
 
 complete_data <- melted %>% 
   select(-afforestation, -agricultural_land_expansion) 
-# %>% 
-#   mutate(value = ifelse(variable %in% c("Population_change", "kcal_targ_change", "pdty_crop_change", 
-#                                         "pdty_live_change", "density_change", "Export_quantity_change", 
-#                                         "Import_quantity_change", "Foodwaste_change", "pa", "agrprac_change", 
-                                        # "irr_change", "biofuel_use_change"), value * 100, value))
-
-
-
-
-
 
 
 ### All info in one graph
@@ -1472,7 +1278,6 @@ create_plot <- function(data, alpha3) {
                drop = TRUE,
                nrow = 3,  
                scales = "free_x") +
-    # scale_fill_manual(values = c("#D5EB4B", "#66BB6A")) +
     theme(
       panel.background = element_rect(fill = '#F2F2F2'),
       panel.grid  = element_blank(),

@@ -1,11 +1,8 @@
 
-# Figure 3: Historical values from the UNFCCC gas inventory
+# Figure 1: Historical values from the UNFCCC gas inventory
 # Author: Clara Douzal (SDSN), updated by Davide Cozza (SDSN)
 # Last update: 20240529
 
-###### NEXT STEPS
-# IMPROVE FIGURE 
-# CHECK 
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
                "conflicted", "cowplot", "patchwork", "egg", "ggforce", "readxl", 
@@ -43,36 +40,6 @@ data_F3 <- as.data.frame(read_csv(here("data","Figure 3", "20230720_HomePageISO.
 data_F3$Category <- factor(data_F3$Category, levels = c("AFOLU", "Waste", "Energy", "IPPU", "Other"))
 
 
-# country_abbreviations <- c(
-#   "Argentina" = "ARG",
-#   "Australia" = "AUS",
-#   "Brazil" = "BRA",
-#   "Canada" = "CAN",
-#   "China" = "CHN",
-#   "Colombia" = "COL",
-#   "Ethiopia" = "ETH",
-#   "Finland" = "FIN",
-#   "Germany" = "DEU",
-#   "India" = "IND",
-#   "Indonesia" = "IDN",
-#   "Mexico" = "MEX",
-#   "Norway" = "NOR",
-#   "Nepal" = "NPL",
-#   "Türkiye" = "TUR",
-#   "Denmark" = "DNK",
-#   "Greece" = "GRC",
-#   "Russia" = "RUS",
-#   "Rwanda" = "RWA",
-#   "Sweden" = "SWE",
-#   "UK" = "GBR",
-#   "United States of America" = "USA"
-# )
-# 
-# data_F3 <- data_F3 %>%
-#   mutate(Country = case_when(
-#     Country %in% names(country_abbreviations) ~ country_abbreviations[Country],
-#     TRUE ~ as.character(Country)
-#   )) 
 
 # For Regions"
 GHG_region <- read_excel(here("data", "Figure 3", "GHG_region.xlsx"))
@@ -98,12 +65,6 @@ GHG_region_agg <- GHG_region %>%
   filter(Year == 2010)
   
 
-# na_countries <- GHG_region_agg %>%
-#   filter(is.na(Country_FABLE)) %>%
-#   select(Country) %>%
-#   distinct()
-
-
 data_F3 <- data_F3 %>% 
   rbind(GHG_region_agg) %>% 
   mutate(Sub.Category = na_if(Sub.Category, "NA"))
@@ -115,13 +76,6 @@ print(figure_directory)
 
 
 
-
-# if(Country == "Colombia"){
-#   data_F3 <- as.data.frame(read_excel(here("data","Figure 3", "Historical_data_COL.xlsx"), 
-#                                       sheet = "Feuil1"))
-#   data_F3$Category <- factor(data_F3$Category, levels = c("AFOLU", "Waste", "Energy", "IPPU", "Other"))
-#   
-# }
 
 
 # Colour palettes ---------------------------------------------------------
@@ -144,38 +98,24 @@ names(myColorsCO2AFOLU) <- c("CalcLiveAllCO2e", "CalcDeforCO2",
                              "CalcPeatCO2","GHGbiofuels")
 
 countries <- c(
-   "ARG",
-  "AUS"
-  ,
-  "BRA"
-  , "CAN", "CHN", "COL","DEU",
-  "ETH"
-  ,"FIN","GBR", "IDN", "IND",
-  "MEX"
-  ,"NOR", "RUS", "RWA","SWE",  "USA",
-  "DNK",
-  "GRC","TUR", "NPL",
+   "ARG","AUS","BRA", "CAN", "CHN", "COL","DEU",
+  "ETH" ,"FIN","GBR", "IDN", "IND",
+  "MEX","NOR", "RUS", "RWA","SWE",  "USA",
+  "DNK","GRC","TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-# mex, bra and eth to do separetely from the others
-
-ALPHA3 <- "MEX"
+# ALPHA3 <- "MEX"
 # Loop over each country
 for (ALPHA3 in countries) {
   
   data_country <- droplevels(data[which(data$country == ALPHA3),])
   product_country <- droplevels(product[which(product$country == ALPHA3),])
   
-  # if(country != "Colombia"){
   data_F3_country <- droplevels(data_F3[which(data_F3$Country == ALPHA3),])
-  # }else{
-  # data_F3 <- droplevels(data_F3)}
-  
-  
+
   
   my_data <- data_F3_country
-  
   
   
   
@@ -409,8 +349,6 @@ for (ALPHA3 in countries) {
   
   # Creation of plot to display ---------------------------------------------
   
-  #If only emissions from AFOLU for your country
-  
   p <- ggplot(my_data_aug)
   
   #Need to adjust the coordinates for the lines that link the donut to the bar chart depending on the country
@@ -437,7 +375,7 @@ for (ALPHA3 in countries) {
   
   df_yend <- df_yend %>% 
     #change the y coordinate for the top right end of the segment that links the donut with the bar chart
-    mutate(lines_right_top = ifelse(Country == "UK",         ################ TO UNDERSTAND AND UPDATE #############
+    mutate(lines_right_top = ifelse(Country == "UK",         
                                     1.75,
                                     ifelse(Country == "RWA",
                                            0.4 + placeholder_top,
@@ -558,8 +496,6 @@ for (ALPHA3 in countries) {
     ylab(NULL)
   
 
-  
-  
   
   #If there are emissions & removals from AFOLU for your country
   if(exists("my_data_neg")){

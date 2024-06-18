@@ -2,7 +2,6 @@
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -33,14 +32,6 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   filter(iteration == "5") %>% 
   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>%
 select(alpha3,Pathway, Year, agroecosh) 
-
-
-# 
-# scenathon_long <- scenathon %>%
-#   pivot_longer(cols = c(agroecosh), names_to = "LandType", values_to = "Value") %>%
-#   ungroup()
-
-
 
 
 
@@ -107,70 +98,3 @@ for (country in countries) {
   print(p_pathway)
   dev.off()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 
-# 
-# for (country in countries) {
-#   # Subset data for the specific country
-#   country_data <- subset(scenathon_long, alpha3 == country)
-#   
-#   # Create ggplot for the specific country
-#   p_pathway <- ggplot(country_data, aes(x = as.factor(Year), y = Value, fill = LandType)) +
-#     geom_bar(stat = "identity", position = "stack") +
-#     geom_text(aes(label = paste0(Percentage, "%")), position = position_stack(vjust = 0.5), size = 5, color = "ivory") +
-#     geom_hline(yintercept = 0, linetype = "solid") +
-#     labs(
-#       x = "",
-#       y = "Mha", fill = ""
-#     ) +
-#     facet_grid(. ~ Pathway, scales = "free_y",
-#                labeller = labeller(Pathway = c(
-#                  "CurrentTrends" = "Current Trends",
-#                  "NationalCommitments" = "National Commitments",
-#                  "GlobalSustainability" = "Global Sustainability"
-#                ))) +
-#     scale_fill_manual(values = c("nonagroecland" = "#9ACD32", "agroecland" = "#006400"),
-#                       labels = c("Cropland under conventional practices", "Cropland under agroecological practices")) +
-#     theme_minimal() +
-#     theme(
-#       text = element_text(family = "sans", color = "black", size = 10, face = "bold"),
-#       legend.title = element_text(family = "sans", color = "black", size = 8),
-#       legend.text = element_text(family = "sans", size = 8),
-#       axis.title.x = element_text(color = "black", size = 8),
-#       axis.title.y = element_text(color = "black", size = 8),
-#       legend.position = "bottom",
-#       panel.spacing = unit(0.05, "cm")
-#     )
-#   
-#   # Save the plot as a TIFF file
-#   filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".tiff")
-#   tiff(
-#     filename = here(figure_directory, filename),
-#     units = "in", height = 5, width = 5.2, res = 300)
-# 
-#   print(p_pathway)
-#   dev.off()
-#   
-#   }
-# 
-# 
-# p_pathway
-# 
-# 
-# 
-# 
