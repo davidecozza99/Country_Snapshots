@@ -2,7 +2,6 @@
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -27,16 +26,10 @@ scenathon<- read.csv(here("data", "240523_FullProductDataBase_expost.csv"), sep 
 
 #List countries
 countries <- c(
-  "ARG",
-  "AUS",
-  "BRA"
-  , "CAN", "CHN", "COL","DEU",
-  "ETH"
-  ,"FIN","GBR", "IDN", "IND",
-  "MEX"
-  ,"NOR", "RUS", "RWA","SWE",  "USA",
-  "DNK",
-  "GRC","TUR", "NPL",
+  "ARG", "AUS", "BRA", "CAN", "CHN", "COL","DEU",
+  "ETH","FIN","GBR", "IDN", "IND",
+  "MEX", "NOR", "RUS", "RWA", "SWE","USA",
+  "DNK", "GRC","TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
@@ -82,6 +75,8 @@ df_planted <- top_planted %>%
 
 df_planted2 <- top_planted %>% 
   rbind(rest_planted)  
+
+df_planted2
 
 figure_directory <- here("output", "figures", "fig7_CroplandComposition")
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)

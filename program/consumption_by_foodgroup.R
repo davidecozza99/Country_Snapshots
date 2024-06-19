@@ -2,7 +2,6 @@
 
 # libraries --------------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -24,7 +23,11 @@ conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
 here()
 
-
+# 1) We are going to determinate the Missing Food groups for countries, and then for regions. 
+# 2) The OTHER category will be set, 
+# 3) Teff data for Ethiopia will be included in the Scenathon database
+# 4) Merging all the previous dataset, we will come up with the complete data
+# 5) Plotting the data
 
 #Missing Food (Countries)-----------------------------------------------------
 missing_food <- read_excel(here("data", "240612_MissingFood.xlsx")) %>% 
@@ -58,6 +61,10 @@ missing_food_long <- combined_data_years %>%
   slice(rep(1:n(), each = length(pathways))) %>%
   mutate(Pathway = rep(pathways, times = nrow(combined_data_years)))
 
+#Renaming Russia
+missing_food_long <- missing_food_long %>%
+  mutate(CountryName = ifelse(CountryName == "RussianFed", "Russia", CountryName))  
+
 
 mapping_prod<- read_excel(here("data", "mapping_product_group.xlsx")) %>%
   rename(Product = PRODUCT)
@@ -79,9 +86,9 @@ missing_food_long <- missing_food_long %>%
   ungroup() %>% 
   select(-CountryName) %>% 
   drop_na() %>% 
-  rename(alpha3 = ALPHA3, kcalfeasprod = kcalfeas)
-#-------------------------------------------------------------------------------
-
+  rename(alpha3 = ALPHA3, kcalfeasprod = kcalfeas) %>% 
+  filter(!str_detect(alpha3, "^R_")) %>% 
+  unique()
 
 #Missing Food (Regions) --------------------------------------------------------
 missfood_regions <- read_excel(here("data", "240612_MissingFood.xlsx")) %>%
@@ -129,8 +136,7 @@ missfood_regions_long_final <- missfood_regions_long %>%
   select(-kcalfeas, -Product) %>% 
   rename(alpha3 = CountryName) %>% 
   unique()
-#-------------------------------------------------------------------------------
-  
+
 # Computing OTHER category -----------------------------------------------------
 mapping_alpha3_Country <- read_excel(here("data","mapping_alpha3_Country.xlsx"))
 mapping_country_FAO_FABLE <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx"))
@@ -191,8 +197,10 @@ OTHER <- Other %>%
 # OTHER <- read_excel(here("data", "20240612_OTHER.xlsx"))
 
 
+
 #Teff data for Ethiopia --------------------------------------------------
 teff_kcal <- read_excel(here("data", "240517_teff_kcal.xlsx"))
+
 
 
 
@@ -216,13 +224,13 @@ consumption <- scenathon %>%
   ungroup() %>%
   select(-Product, -kcalfeasprod) %>%
   filter(!PROD_GROUP %in% c("FIBERINDUS", "OLSCAKE")) %>%
-  # filter(alpha3 == country) %>%
   unique %>%
   drop_na() %>% 
-  mutate(kcalfeasprod_productgroup = ifelse(kcalfeasprod_productgroup < 0, 0, kcalfeasprod_productgroup)) # to correct for some products that assume negative values
+  # to correct for some products that assume negative values (Pork in DNK)
+  mutate(kcalfeasprod_productgroup = ifelse(kcalfeasprod_productgroup < 0, 0, kcalfeasprod_productgroup)) 
   
 consumption <- consumption %>% 
-  select(-total_kcal)%>%
+  select(-total_kcal) %>%
   rbind(missfood_regions_long_final) %>% 
   rbind(OTHER) %>% 
   rbind(teff_kcal) %>% 
