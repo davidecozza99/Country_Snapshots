@@ -1,8 +1,15 @@
-## Land composition ###
+##----------------------------------------------------------------------------
+# LAND COMPOSITION EVOLUTION
+# ----------------------------------------------------------------------------
+# Author: Davide Cozza (SDSN)
+
+# Steps: 
+# 1) Getting and preparing data 
+# 2) Plotting data
+
 
 # libraries ---------------------------------------------------------------
 library(here)
-#library(plyr)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -25,12 +32,20 @@ conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
 here()
 
-#Data -------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+# 1 DATABASE  ----------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>% 
   rename(alpha3 = country, Pathway = pathway, Year = year) %>% 
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>% 
+  #tradeadjustment set to Yes
   filter(iteration == "5") %>% 
-  select(alpha3, Pathway, Year, calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, protectedareasforest, protectedareasother, protectedareasothernat ) %>%
+  #selecting interesting variables
+  select(alpha3, Pathway, Year, calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, protectedareasforest, protectedareasother, protectedareasothernat) %>%
+  # Creating PA variable
   mutate(PA =protectedareasforest + protectedareasother + protectedareasothernat) %>% 
   mutate(across(c(calccropland, calcpasture, calcforest, calcnewforest, calcotherland, calcurban, newotherland, totalland, PA), ~ . / 1000)) %>% 
   select(-protectedareasforest,- protectedareasother, -protectedareasothernat) %>% 
@@ -42,7 +57,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
                                 newotherland)))
 
 
-
+# Changing structure of the data
 scenathon_long <- scenathon %>%
   pivot_longer(cols = c(calccropland,calcpasture,calcforest, calcnewforest, calcotherland,calcurban,newotherland), names_to = "LandType", values_to = "Value") %>%
   group_by(alpha3, Pathway, Year) %>% 
@@ -51,14 +66,18 @@ scenathon_long <- scenathon %>%
 
 
 
+# ----------------------------------------------------------------------------
+# 2 PLOT  --------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-
-#Plot Pathway ---------------------------------------------------------------
+#Order of pathways
 scenathon_long$Pathway <- factor(scenathon_long$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
+#Order of Land type
 scenathon_long$LandType <- factor(scenathon_long$LandType, levels = c(
   "calccropland", "calcpasture", "calcforest", "calcotherland", "calcurban", "newotherland", "calcnewforest"
 ))
+
 # List countries
 countries <- c(
   "ARG", "AUS", "BRA", "CAN", "CHN", "COL", "DEU", "ETH",
@@ -67,6 +86,8 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
+
+# Aesthetics
 land_colors <- c(
   "calccropland" = "#B8860B",     
   "calcpasture" = "#FF4500",      
@@ -77,7 +98,7 @@ land_colors <- c(
   "newotherland" = "#76c4c4",     
   "totalland" = "#2E8B57"         
 )
-#FFD700
+
 land_labels <- c(
   "calccropland" = "Cropland",
   "calcpasture" = "Pasture",
@@ -89,15 +110,17 @@ land_labels <- c(
   "totalland" = "Total Land"
   )
 
+#Setting directory
 figure_directory <- here("output", "figures", "fig6_land", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 
-
 percent_labels <- function(x) {
   paste0(formatC(x, format = "f", digits = 0), " %")
 }
+
+
 # Create plot for each country
 plot_list <- list()
 

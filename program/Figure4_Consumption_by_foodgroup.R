@@ -1,4 +1,16 @@
-# Consumption by Food Group
+##----------------------------------------------------------------------------
+# CONSUMPTION BY FOOD GROUP
+# ----------------------------------------------------------------------------
+# Author: Davide Cozza (SDSN)
+
+
+# Steps: 
+# 1) Setting Missing Food groups for countries and regions. 
+# 2) Setting "OTHER" food group category
+# 3) Including Teff data in the Scenathon database.
+# 4) Getting final database
+# 5) Plotting the data
+
 
 # libraries --------------------------------------------------------------------
 library(here)
@@ -23,13 +35,12 @@ conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
 here()
 
-# 1) We are going to determinate the Missing Food groups for countries, and then for regions. 
-# 2) The OTHER category will be set, 
-# 3) Teff data for Ethiopia will be included in the Scenathon database
-# 4) Merging all the previous dataset, we will come up with the complete data
-# 5) Plotting the data
 
-#Missing Food (Countries)-----------------------------------------------------
+# ----------------------------------------------------------------------------
+# 1.a MISSING FOOD (COUNTRIES)  ----------------------------------------------
+# ----------------------------------------------------------------------------
+
+# Opening and setting database
 missing_food <- read_excel(here("data", "240612_MissingFood.xlsx")) %>% 
   select(-"2000", -"2005", -"2010", -"2015")
 
@@ -40,7 +51,6 @@ missing_food_long <- missing_food %>%
   mutate(Year = as.numeric(Year)) %>% 
   select(-type)
 
-
 # Create a series of new years
 new_years <- c(2025, 2030, 2035, 2040, 2045, 2050)
 
@@ -49,12 +59,11 @@ new_data <- missing_food_long %>%
   slice(rep(1:n(), each = length(new_years))) %>%
   mutate(Year = rep(new_years, times = nrow(missing_food_long)))
 
-
 combined_data_years <- bind_rows(missing_food_long, new_data)
+
 
 # Create the Pathway column values
 pathways <- c("CurrentTrends", "NationalCommitments", "GlobalSustainability")
-
 
 # Replicate the data for each Pathway
 missing_food_long <- combined_data_years %>%
@@ -65,10 +74,11 @@ missing_food_long <- combined_data_years %>%
 missing_food_long <- missing_food_long %>%
   mutate(CountryName = ifelse(CountryName == "RussianFed", "Russia", CountryName))  
 
-
+# Opening database for mapping products with food group
 mapping_prod<- read_excel(here("data", "mapping_product_group.xlsx")) %>%
   rename(Product = PRODUCT)
 
+# Mapping products and food groups 
 missing_food_long <- missing_food_long %>% 
   mutate(Product = ifelse(Product == "Beverages, Alcoholic", "BevAlcoholic", Product),
          Product = ifelse(Product == "Beverages fermented", "BevFermented", Product),
@@ -77,10 +87,11 @@ missing_food_long <- missing_food_long %>%
   left_join(mapping_prod) %>% 
   unique()
 
-
+# Opening database for mapping countries
 mapping_alpha3_Country <- read_excel(here("data" ,"mapping_alpha3_Country.xlsx")) %>% 
   rename(CountryName = Country)
 
+#Mapping countries
 missing_food_long <- missing_food_long %>% 
   left_join(mapping_alpha3_Country, relationship = "many-to-many") %>% 
   ungroup() %>% 
@@ -90,7 +101,13 @@ missing_food_long <- missing_food_long %>%
   filter(!str_detect(alpha3, "^R_")) %>% 
   unique()
 
-#Missing Food (Regions) --------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+# 1.b MISSING FOOD (REGIONS)   -----------------------------------------------
+# ----------------------------------------------------------------------------
+
+# Opening and setting database
 missfood_regions <- read_excel(here("data", "240612_MissingFood.xlsx")) %>%
   filter(CountryName %in% c("R_ASP", "R_CSA", "R_OEU", "R_NEU", "R_SSA", "R_NMC")) %>% 
   select(-"2000", -"2005", -"2010", -"2015")
@@ -120,9 +137,7 @@ missfood_regions_long <- combined_data_years %>%
   slice(rep(1:n(), each = length(pathways))) %>%
   mutate(Pathway = rep(pathways, times = nrow(combined_data_years)))
 
-mapping_prod<- read_excel(here("data", "mapping_product_group.xlsx")) %>%
-  rename(Product = PRODUCT)
-
+# Mapping products and food groups 
 missfood_regions_long_final <- missfood_regions_long %>% 
   mutate(Product = ifelse(Product == "Beverages, Alcoholic", "BevAlcoholic", Product),
          Product = ifelse(Product == "Beverages fermented", "BevFermented", Product),
@@ -137,10 +152,17 @@ missfood_regions_long_final <- missfood_regions_long %>%
   rename(alpha3 = CountryName) %>% 
   unique()
 
-# Computing OTHER category -----------------------------------------------------
+
+
+# ----------------------------------------------------------------------------
+# 2 "OTHER" FOOD GROUP  -------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+# Opening and setting database
 mapping_alpha3_Country <- read_excel(here("data","mapping_alpha3_Country.xlsx"))
 mapping_country_FAO_FABLE <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx"))
 
+#Opening and setting FAOSTAT database on OTHER
 FAOSTAT_FoodSupply_Other <- read_csv(here("data", "240523_FAOSTAT_FoodSupply_Other.csv")) %>%
   select(Area, Item, Year, Value) %>%
   left_join(mapping_country_FAO_FABLE, by = c("Area" = "Country_FAO")) %>%
@@ -154,6 +176,7 @@ FAOSTAT_FoodSupply_Other <- read_csv(here("data", "240523_FAOSTAT_FoodSupply_Oth
 FAOSTAT_FoodSupply_Other_wide <- FAOSTAT_FoodSupply_Other %>%
   pivot_wider(names_from = Item, values_from = Value)
 
+# Computing OTHER category
 Other <- FAOSTAT_FoodSupply_Other_wide %>%
   filter(Year == "2020") %>% 
   group_by(Year, ALPHA3) %>%
@@ -198,14 +221,18 @@ OTHER <- Other %>%
 
 
 
-#Teff data for Ethiopia --------------------------------------------------
+# ----------------------------------------------------------------------------
+# 3 TEFF KCAL DATAFOR ETHIOPIA  ----------------------------------------------
+# ----------------------------------------------------------------------------
 teff_kcal <- read_excel(here("data", "240517_teff_kcal.xlsx"))
 
 
 
+# ----------------------------------------------------------------------------
+# 4 GETTING FINAL DATABASE  --------------------------------------------------
+# ----------------------------------------------------------------------------
 
-
-#Complete data----------------------------------------------------------------
+# Opening and setting Scenathon database
 scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
   rename(alpha3 = country, Pathway = pathway, Year = year, Product = product) %>%
   mutate(Pathway = recode(Pathway, "NationalCommitment" = "NationalCommitments")) %>%
@@ -213,6 +240,7 @@ scenathon<- read_csv(here("data", "240523_FullProductDataBase.csv")) %>%
   filter(!Year %in% c("2000", "2005", "2010", "2015")) %>%
 select(alpha3,Pathway, Year, Product, kcalfeasprod)
 
+# Merging the previous databases with the Scenathon database
 consumption <- scenathon %>%
   left_join(mapping_prod, by ="Product") %>%
   rbind(missing_food_long) %>% 
@@ -244,11 +272,12 @@ consumption <- consumption %>%
 
 
 
-#Plot ---------------------------------------------------------
-
+# ----------------------------------------------------------------------------
+# 5 PLOT  --------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 consumption$Pathway <- factor(consumption$Pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
-
+# Setting Aestethics
 product_colors <- c(
   "BEVSPICES" = "darkgrey",    
   "CEREALS" = "#FFD700",      
@@ -295,15 +324,15 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-
+# Setting directory
 figure_directory <- here("output", "figures", "fig4_diet", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
 # Loop for each country
-
 for (country in countries) {
   
+  #Getting database for each country
   country_data <- subset(consumption, alpha3 == country)
   
   # Create plot for the specific country

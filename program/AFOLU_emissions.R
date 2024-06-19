@@ -1,4 +1,7 @@
-### AFOLU Emissions by Gas type ###
+##----------------------------------------------------------------------------
+# AFOLU Emission evolution by gas and source 
+# ----------------------------------------------------------------------------
+# Author: Davide Cozza (SDSN)
 
 # Libraries ---------------------------------------------------------------
 library(here)
@@ -13,12 +16,20 @@ library(hrbrthemes)
 library(reshape2)
 library(gridExtra)
 
-
 conflict_prefer("filter", "dplyr")
 
 here()
 
-#Data extraction ---------------------------------------------------------------
+
+# Steps: 
+# 1) Getting and preparing data 
+# 2) Plotting data
+
+
+
+# ----------------------------------------------------------------------------
+# 1 DATABASE  ----------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>% 
   rename(alpha3 = country, Year = year) %>% 
@@ -32,6 +43,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
          calcpeatco2,
          calcsequestaband, calcsequestaffor) %>% 
   group_by(Year, pathway, alpha3) %>% 
+  #aggregating emissions
   mutate(N2O_crop = sum(calccropn2o)) %>% 
   mutate(CH4_crop = sum(calccropch4)) %>% 
   mutate(CO2_crop = sum(calccropco2)) %>% 
@@ -50,7 +62,7 @@ scenathon <- read_csv(here("data", "240523_FullDataBase.csv")) %>%
   distinct() 
 
 
-#Data manipulation -------------------------------------------------------------
+# Changing structure of the database
 df_long <- melt(scenathon, id.vars = c("Year", "pathway", "alpha3"), variable.name = "Gas", value.name = "Emission") 
 df_long$Gas <- as.character(df_long$Gas)
 df_long <- df_long %>% 
@@ -64,17 +76,18 @@ df_long <- df_long %>%
 
 
 
-#Preparing aesthetic for the plot ----------------------------------------------
+# ----------------------------------------------------------------------------
+# 2 PLOT  --------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
+# Aesthetics
 gas_colors <- c("CH4_live" = "#943F3F", "N2O_live" = "#FF0000",
                 "CH4_crop" = "#D9AB2B", "N2O_crop" = "#FFCB52",
                 "CO2_crop" = "#D5E59E", "CO2_def" = "#0CA48D",
                 "CO2_other" ="green","CO2_peat" = "#8A2BE2",
                 "CO2_aband" = "#66BB6A",
                 "CO2_affor" = "#1B5E20",
-                "CO2_bio"= "grey"
-)
-
+                "CO2_bio"= "grey")
 
 gas_labels <- c(
   "N2O_live" = "N2O Livestock", "CH4_live" = "CH4 Livestock",
@@ -95,14 +108,16 @@ df_long$Gas <- factor(df_long$Gas, levels = c(
 ))
 
 
-#Plot --------------------------------------------------------------------------
-
+#Order of pathways
 unique_pathways <- unique(df_long$pathway)
 df_long$pathway <- factor(df_long$pathway, levels = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))
 
+
+#Setting directory
 figure_directory <- here("output", "figures", "fig8_ghg", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
+
 
 #List countries
 countries <- c(
@@ -111,6 +126,7 @@ countries <- c(
   "RUS", "RWA", "SWE", "USA", "DNK", "GRC", "TUR", "NPL",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
+
 
 # Loop through each country
 for (country in countries) {
@@ -155,7 +171,6 @@ for (country in countries) {
   print(p)
   dev.off()
   
-
 }
 
 
