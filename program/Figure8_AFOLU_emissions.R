@@ -172,5 +172,3 @@ for (country in countries) {
   dev.off()
   
 }
-
-
