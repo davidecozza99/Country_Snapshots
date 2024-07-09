@@ -1,4 +1,7 @@
-### Diet Graph ###
+# Figure 2: Daily average kilocalorie intake per capital per food category in 2020
+# Author: Clara Douzal (SDSN)
+# Last update: 20240529
+
 
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
@@ -17,11 +20,6 @@ conflicted::conflict_prefer("mutate", "dplyr")
 conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
 here()
-
-
-# FAO_F6 <- read_excel(here("data", "Figure 6", "FAO_2015.xlsx"))  ### No needed ###
-
-
 
 
 # data --------------------------------------------------------------------
@@ -51,10 +49,10 @@ product<- product %>%
 
 
 ### Eat Lancet diet
-EAT_data <- read_excel(here("data", "DataForFoodFigures.xlsx"), ###################### ???????????????
+EAT_data <- read_excel(here("data", "DataForFoodFigures.xlsx"),
                        sheet = "EAT-LANCET", range = "A3:J17") 
 
-### Food Missing
+### Food Missing from FABLE calculator's by product kcal consumption
 FOOD_missing <- read_excel(here("data","Figure 6", "MissingFoodProducts.xlsx"), sheet = "figure6") %>% 
   mutate(PROD_GROUP = ifelse(
     Item %in% c("Wine", "Beer", "Beverages, Alcoholic"), "ALCOHOL","ANIMFAT" )) %>% 
@@ -95,9 +93,8 @@ FOOD_missing <- FOOD_missing %>%
   )) 
 
 
-
 # Define the output directory
-figure_directory <- here("output", "figures", "fig2", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "fig2", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -108,8 +105,7 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-# 
-# ALPHA3 <- "ETH"
+
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -164,6 +160,7 @@ for (ALPHA3 in countries) {
   }
   data_kcal_2020 <- data_kcal
   data_kcal <- data_kcal[which(data_kcal$year == 2020),]
+  
   # Merge recommendation and actual value together --------------------------
   finaldata <- EAT_data_fill %>% 
     left_join(data_kcal) %>% 
@@ -247,18 +244,6 @@ for (ALPHA3 in countries) {
                      ROOTS = "#8A2BE2",
                      SUGAR = "#434955",
                      "1" = "white", "2" = "white")
-  # 
-  # 
-  # myColors_Food <- c(CEREALS = "#fbb30a", EGGS = "#ffe1a8",
-  #                    FRUVEG = "#B6CFAF",
-  #                    MILK = "#a8bbc5",
-  #                    NUTS = "#a44e12",
-  #                    OLSOIL = "#FFEC4D",
-  #                    POULTRY = "#e26d5c", PULSES = "#472d30",
-  #                    REDMEAT = "#723d46", ROOTS = "#8C806F",
-  #                    SUGAR = "#434955",
-  #                    "1" = "white", "2" = "white")
-  
   
   
   cat.labs <- c(CurrentTrends = paste0(CT_kcal_tot, " kcal/cap/day")
@@ -369,8 +354,6 @@ for (ALPHA3 in countries) {
           strip.placement = "outside",
           plot.margin = margin(t = -10, b= -20))
   
-  # p <- plot_grid(p, p_legend_rec, p_legend_food,
-  #                nrow = 3, rel_heights = c(1.2, 0.1, 0.30))
   
   p <- plot_grid(
     p, 
@@ -379,8 +362,6 @@ for (ALPHA3 in countries) {
     rel_heights = c(1, 0.5),  
     rel_widths = c(1.25, 1) 
   )
-  
-  p
   
   #Save the plot as TIFF file
   filename <- paste0("Fig2_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")

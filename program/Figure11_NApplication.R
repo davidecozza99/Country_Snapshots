@@ -1,4 +1,6 @@
-## cropland composition
+# Figure 11: Nitrogen application
+# Author: Clara Douzal (SDSN)
+# Last update: 20240529
 
 # libraries ---------------------------------------------------------------
 library(here)
@@ -37,17 +39,10 @@ scenathon<- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %
 
 #List countries
 countries <- c(
-  "ARG",
-  "AUS",
-  "BRA"
-  , "CAN", "CHN", "COL","DEU",
-  "ETH"
-  ,"FIN","GBR", "IDN", "IND",
-  "MEX"
-  ,"NOR", "RUS", "RWA","SWE",  "USA",
-  "DNK",
-  "GRC","TUR", "NPL",
-  "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
+  "ARG", "AUS", "BRA", "CAN", "CHN", "COL","DEU",
+  "ETH" ,"FIN","GBR", "IDN", "IND", "MEX",
+  "NOR", "RUS", "RWA","SWE",  "USA", "DNK",
+  "GRC","TUR", "NPL", "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
 
@@ -70,7 +65,6 @@ for (cur_country in countries) {
          y = "1000 t N",
          fill = ""
     ) +
-    #scale_y_continuous(breaks = seq(0, max(country_data$kcalfeasprod_productgroup + 2000), 250)) +
     facet_grid(. ~ pathway_id, scales = "free_y",
                labeller = labeller(pathway_id = c(
                  "CT" = "Current Trends",
@@ -83,9 +77,7 @@ for (cur_country in countries) {
     theme_minimal() +
     theme(
       text = element_text(family = "sans", "black", size = 16, face = "bold"),
-      # legend.title = element_text(family = "sans", color = "steelblue", size = 16, face = "bold"),
       legend.text = element_text(family = "sans", size = 14),
-      # plot.title = element_text(color = "steelblue", size = 16, face = "bold"),
       axis.title.x = element_blank(),
       axis.title.y = element_text(color = "black", size = 14),
       legend.position = "bottom",
@@ -99,7 +91,6 @@ for (cur_country in countries) {
   png(
     filename = here(figure_directory, filename),
     units = "cm", height = 15.8, width = 17.4, res = 300)
-    #units = "in", height = 3.657407, width = 4.023148, res = 96)
   print(p_N)
   dev.off()
   

@@ -1,5 +1,8 @@
-### Diet Graph ###
- 
+# Figure 5: Comparison of the computed daily average kilocalorie intake per capital per 
+# food category across the three pathways and the prevalence of undernourishment in 2050
+# Author: Clara Douzal (SDSN)
+# Last update: 20240529
+
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
                "conflicted", "cowplot", "patchwork", "egg", "readxl", 
@@ -19,20 +22,14 @@ conflicts_prefer(dplyr::filter)
 here()
 
 
-# FAO_F6 <- read_excel(here("data", "Figure 6", "FAO_2015.xlsx"))  ### No needed ###
-
-
-
-
 # data --------------------------------------------------------------------
 
 ### Indicator database
-# data <- read.csv(here("data", "240523_FullDataBase.csv")) %>%
-#   filter(tradeajustment == "Yes")
+
 data <- read.csv(here("data", "240523_FullDataBase_expost.csv"), sep = "") %>% 
   mutate(ALPHA3 = country) %>% 
   filter(tradeadjustment == "Yes") 
-  
+
 
 if (!is.factor(data$pathway)) {
   data$pathway <- as.factor(data$pathway)
@@ -55,7 +52,7 @@ product<- product %>%
 
 
 ### Eat Lancet diet
-EAT_data <- read_excel(here("data", "DataForFoodFigures.xlsx"), ###################### ???????????????
+EAT_data <- read_excel(here("data", "DataForFoodFigures.xlsx"), 
                        sheet = "EAT-LANCET", range = "A3:J17") 
 
 ### Food Missing
@@ -112,16 +109,14 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-# 
-# ALPHA3 <- "ETH"
 # Loop over each country
 for (ALPHA3 in countries) {
   
   data_country <- droplevels(data[which(data$country == ALPHA3),])
   product_country <- droplevels(product[which(product$country == ALPHA3),])
   FOOD_missing_country <- droplevels(FOOD_missing[which(FOOD_missing$Country == ALPHA3),])
- 
-
+  
+  
   # EAT-Lancet country specific recommendation ------------------------------
   # recommended total daily kcal
   kcal_fixed <- sum(EAT_data$kcal)
@@ -159,17 +154,17 @@ for (ALPHA3 in countries) {
   data_kcal <- aggregate(kcalfeasprod ~ year + Pathway + PROD_GROUP, data = product_country, sum)
   if(ALPHA3 %in% c("ARG", "AUS", "BRA", "CAN", "CHN", "COL", "ETH", "FIN", "DEU", "IND", 
                    "IDN", "MEX", "NOR", "NPL", "TUR", "DNK", "GRC", "RWA", "SWE", "RUS", "GBR","USA")){
-  FOOD_missing_country <- aggregate(kcalfeasprod ~ PROD_GROUP, data = FOOD_missing_country, sum)
-  data_kcal <- rbind(data_kcal,
-                     cbind.data.frame(year = 2050,
-                                      Pathway = sort(rep(c("CurrentTrends", "NationalCommitments", "GlobalSustainability"), length(FOOD_missing_country$PROD_GROUP))),   
-                                      PROD_GROUP = FOOD_missing_country$PROD_GROUP,
-                                      kcalfeasprod = FOOD_missing_country$kcalfeasprod))
-  data_kcal <- rbind(data_kcal,
-                     cbind.data.frame(year = 2020,  
-                                      Pathway = sort(rep(c("CurrentTrends", "NationalCommitments", "GlobalSustainability"), length(FOOD_missing_country$PROD_GROUP))),   
-                                      PROD_GROUP = FOOD_missing_country$PROD_GROUP,
-                                      kcalfeasprod = FOOD_missing_country$kcalfeasprod))
+    FOOD_missing_country <- aggregate(kcalfeasprod ~ PROD_GROUP, data = FOOD_missing_country, sum)
+    data_kcal <- rbind(data_kcal,
+                       cbind.data.frame(year = 2050,
+                                        Pathway = sort(rep(c("CurrentTrends", "NationalCommitments", "GlobalSustainability"), length(FOOD_missing_country$PROD_GROUP))),   
+                                        PROD_GROUP = FOOD_missing_country$PROD_GROUP,
+                                        kcalfeasprod = FOOD_missing_country$kcalfeasprod))
+    data_kcal <- rbind(data_kcal,
+                       cbind.data.frame(year = 2020,  
+                                        Pathway = sort(rep(c("CurrentTrends", "NationalCommitments", "GlobalSustainability"), length(FOOD_missing_country$PROD_GROUP))),   
+                                        PROD_GROUP = FOOD_missing_country$PROD_GROUP,
+                                        kcalfeasprod = FOOD_missing_country$kcalfeasprod))
   }
   data_kcal_2020 <- data_kcal
   data_kcal <- data_kcal[which(data_kcal$year == 2050),]
@@ -182,7 +177,7 @@ for (ALPHA3 in countries) {
     select (country, year, pathway, kcal_feas, pou_computed) %>% 
     filter(year == 2050) %>% 
     filter(country == ALPHA3)   
-
+  
   
   CT_kcal_tot <- kcal_tot %>% filter(pathway == "CurrentTrends") %>% pull(kcal_feas) %>% unique() %>% round()
   NC_kcal_tot <- kcal_tot %>% filter(pathway == "NationalCommitments") %>% pull(kcal_feas) %>% unique() %>% round()
@@ -259,30 +254,14 @@ for (ALPHA3 in countries) {
                      ROOTS = "#8A2BE2",
                      SUGAR = "#434955",
                      "1" = "white", "2" = "white")
-  # 
-  # 
-  # myColors_Food <- c(CEREALS = "#fbb30a", EGGS = "#ffe1a8",
-  #                    FRUVEG = "#B6CFAF",
-  #                    MILK = "#a8bbc5",
-  #                    NUTS = "#a44e12",
-  #                    OLSOIL = "#FFEC4D",
-  #                    POULTRY = "#e26d5c", PULSES = "#472d30",
-  #                    REDMEAT = "#723d46", ROOTS = "#8C806F",
-  #                    SUGAR = "#434955",
-  #                    "1" = "white", "2" = "white")
   
-
-
+  
+  
   cat.labs <- c(CurrentTrends = paste0("Current Trends\n"),
                 NationalCommitments = paste0("National Commitments\n"),
                 GlobalSustainability = paste0("Global Sustainability\n")
   )
   
-  # cat.labs2 <- c(CurrentTrends_pou = paste0("PoU:\n", CT_pou, " %"),
-  #                NationalCommitments_pou = paste0("PoU:\n", NC_pou, " %"),
-  #                GlobalSustainability_pou = paste0("Prevalence of Undernourishment:\n", GS_pou, " %")
-  # )
-  # 
   
   ## table with average kcal and PoU information
   
@@ -307,8 +286,8 @@ for (ALPHA3 in countries) {
   
   myLinetype <- c("dashed", "dotted", "solid")
   names(myLinetype) <- c("Average", "Minimum", "Maximum")
-
-
+  
+  
   p_legend_food <- ggplot(data = finaldata, aes(x = PROD_GROUP, y = newkcal)) +
     geom_point(aes(color = PROD_GROUP), size = 6) +
     scale_color_manual(values = myColors_Food, 
@@ -325,7 +304,7 @@ for (ALPHA3 in countries) {
   
   p_legend_food <- cowplot::get_legend(p_legend_food)
   
- 
+  
   
   p_legend_rec <- ggplot(data = finaldata, aes(x = PROD_GROUP, y = newkcal, fill = PROD_GROUP)) +
     geom_col(position = "dodge",
@@ -410,17 +389,9 @@ for (ALPHA3 in countries) {
           strip.placement = "outside",
           plot.margin = margin(t = -100, b= -150))
   
-  # p <- plot_grid(p, p_legend_rec, p_legend_food,
-  #                ncol = 1, 
-  #                nrow = 2,
-  #                rel_heights = c(1.2, 0.1, 0.30))
-  
-  #p / p2 +  plot_layout(heights = c(7, 1))
-
   empty_plot <- ggplot()+theme_void()
   
   p <- plot_grid(
-    # p, 
     plot_grid(
       plot_grid(empty_plot, p, nrow = 1, rel_widths = c(0.55, 3)), 
       p2, nrow = 2, rel_heights = c(7, 2)),
@@ -429,7 +400,7 @@ for (ALPHA3 in countries) {
     rel_heights = c(1),  
     rel_widths = c(4, 1.75) 
   )
-
+  
   # Save the plot as TIFF file
   filename <- paste0("Fig5_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
   png(
@@ -438,7 +409,7 @@ for (ALPHA3 in countries) {
   )
   print(p)
   dev.off()
-
+  
 }
 
 
