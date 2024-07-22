@@ -4,10 +4,15 @@
 # Last update: 20240529
 
 
-libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
-               "conflicted", "cowplot", "patchwork", "egg", "ggforce", "readxl", 
-               "grid", "scales", "wesanderson", "tidyverse", "latex2exp", 
-               "stringr", "shadowtext", "here", "webr")
+libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer",
+               "conflicted", "cowplot", 
+               "patchwork", 
+               #"egg", 
+               "ggforce", "readxl",
+               "grid", "scales", "wesanderson", #"tidyverse", 
+               "latex2exp",
+               "stringr", #"shadowtext", 
+               "here", "webr", "readr", "ggpubr", "gridExtra")
 lapply(libraries, library, character.only = TRUE)
 
 require(moonBook)
@@ -19,12 +24,10 @@ conflicted::conflict_prefer("rename", "dplyr")
 conflicted::conflict_prefer("mutate", "dplyr")
 conflicted::conflict_prefer("summarise", "dplyr")
 conflicts_prefer(dplyr::filter)
-here()
+here::here()
 conflict_prefer("lag", "dplyr")
 conflict_prefer("filter", "dplyr")
 
-
-here()
 
 # Data --------------------------------------------------------------------
 data <- read.csv(here("data", "240523_FullDataBase.csv")) %>% 
@@ -70,7 +73,7 @@ data_F3 <- data_F3 %>%
   mutate(Sub.Category = na_if(Sub.Category, "NA"))
 
 # Define the output directory
-figure_directory <- here("output", "figures", "fig1_ghg", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure1_UNFCCC_Emissions", paste0(gsub("-", "", Sys.Date())))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
