@@ -6,7 +6,7 @@
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer",
                "conflicted", "cowplot", 
-               "patchwork", 
+               #"patchwork", 
                #"egg", 
                "ggforce", "readxl",
                "grid", "scales", "wesanderson", #"tidyverse", 
@@ -108,7 +108,7 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-# ALPHA3 <- "MEX"
+ALPHA3 <- "MEX"
 # Loop over each country
 for (ALPHA3 in countries) {
   
@@ -458,7 +458,7 @@ for (ALPHA3 in countries) {
     coord_equal() +
     theme(plot.margin = unit(c(-2, -2, -2, -2), "cm"))+
     theme_void()+
-    theme(plot.background = element_rect(fill = "White"))
+    theme(plot.background = element_rect(fill = "White", colour = NA))
   
   my_data_detail$Sub.Category <- factor(my_data_detail$Sub.Category,
                                         levels = order_emissions)
@@ -494,7 +494,7 @@ for (ALPHA3 in countries) {
     labs(title = TeX(paste0(round(sum(my_data_detail[,"Mt.CO2.equivalent"]), 0), "MtCO$_{",2,"}e")))+
     theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),  # Adjust margins as needed
           plot.title = element_text(size = 20, hjust = 0.5),
-          plot.background = element_rect(fill = "white", color = "white"))+           
+          plot.background = element_rect(fill = "white", colour = NA))+           
     xlab("Emissions")+ 
     ylab(NULL)
   
@@ -522,7 +522,7 @@ for (ALPHA3 in countries) {
                  2))+
       coord_equal()+
       theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),
-            plot.background = element_rect(fill = "White"),
+            plot.background = element_rect(fill = "White", colour = NA),
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
@@ -562,7 +562,7 @@ for (ALPHA3 in countries) {
                  2))+
       coord_equal()+
       theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),
-            plot.background = element_rect(fill = "White"),
+            plot.background = element_rect(fill = "White", colour = NA),
             axis.ticks = element_blank(),
             axis.line = element_blank(),
             axis.text = element_blank(),
@@ -593,7 +593,7 @@ for (ALPHA3 in countries) {
         scale_fill_manual(values = myColors_AFOLU)+
         ylim(0,sum(my_data_detail_neg$Amount_scaled))+
         theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),
-              plot.background = element_rect(fill = "White"),
+              plot.background = element_rect(fill = "White", colour = NA),
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
@@ -646,7 +646,7 @@ for (ALPHA3 in countries) {
         scale_fill_manual(values = myColors_AFOLU)+
         ylim(0,sum(my_data_detail_neg$Amount_scaled))+
         theme(plot.margin = unit(c(0, 0, 0, 0), "cm"),
-              plot.background = element_rect(fill = "White"),
+              plot.background = element_rect(fill = "White", colour = NA),
               axis.ticks = element_blank(),
               axis.line = element_blank(),
               axis.text = element_blank(),
@@ -684,10 +684,10 @@ for (ALPHA3 in countries) {
   #Merge donut and bar plots together if only emissions from AFOLU
   p_figure <- ggarrange(p_donut + 
                           theme(plot.margin = margin(r = -15, l = -50),
-                                plot.background = element_rect(fill = "White")),  
+                                plot.background = element_rect(fill = "White", colour = NA)),  
                         p_bar + 
                           theme(plot.margin = margin(l = 0, r = -40),
-                                plot.background = element_rect(fill = "White")), nrow = 1, widths = c( 3, 1.1))
+                                plot.background = element_rect(fill = "White", colour = NA)), nrow = 1, widths = c( 3, 1.1))
   
   #add the legend to the plot
   p_final <- plot_grid(grid.arrange(
@@ -704,10 +704,10 @@ for (ALPHA3 in countries) {
     #Merge donut and bar plots together if emissions and removals from AFOLU
     p_figure <- ggarrange(p_donut +
                             theme(plot.margin = margin(r = -15, l = -50),
-                                  plot.background = element_rect(fill = "White")),
+                                  plot.background = element_rect(fill = "White", colour = NA)),
                           p_bars +
                             theme(plot.margin = margin(l = 0, r = -20),
-                                  plot.background = element_rect(fill = "White")),
+                                  plot.background = element_rect(fill = "White", colour = NA)),
                           nrow = 1,
                           widths = c( 2.2, 1.8))
     
@@ -734,6 +734,9 @@ for (ALPHA3 in countries) {
   )
   print(p_final)
   dev.off()
+  
+  rm(list = setdiff(ls(), c("data", "data_F3", "GHG_region", "GHG_region_agg", "map_country_region", "product", 
+                            "countries", "figure_directory", "libraries", "myColors_AFOLU", "myColors_GHG_AFOLU", "myColorsCO2AFOLU")))
   
 }
  
