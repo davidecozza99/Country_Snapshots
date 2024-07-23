@@ -6,12 +6,10 @@
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer",
                "conflicted", "cowplot", 
-               #"patchwork", 
-               #"egg", 
                "ggforce", "readxl",
-               "grid", "scales", "wesanderson", #"tidyverse", 
+               "grid", "scales", "wesanderson",
                "latex2exp",
-               "stringr", #"shadowtext", 
+               "stringr", 
                "here", "webr", "readr", "ggpubr", "gridExtra")
 lapply(libraries, library, character.only = TRUE)
 
@@ -73,7 +71,7 @@ data_F3 <- data_F3 %>%
   mutate(Sub.Category = na_if(Sub.Category, "NA"))
 
 # Define the output directory
-figure_directory <- here("output", "figures", "Figure1_UNFCCC_Emissions", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure1_UNFCCC_Emissions", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -727,7 +725,7 @@ for (ALPHA3 in countries) {
 
   
   # Save the plot as TIFF file
-  filename <- paste0(gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".pdf")
+  filename <- paste0(format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", ALPHA3), ".pdf")
   pdf(
     file = here(figure_directory, filename),
     height = 6, width = 16

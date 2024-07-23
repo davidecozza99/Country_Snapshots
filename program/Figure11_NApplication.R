@@ -47,7 +47,7 @@ countries <- c(
 
 
 
-figure_directory <- here("output", "figures", "Fig11_NApplication")
+figure_directory <- here("output", "figures", "Figure11_NApplication", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -56,7 +56,7 @@ print(figure_directory)
 for (cur_country in countries) {
   
   country_data <- subset(scenathon, country == cur_country)
-  print(summary(country_data))
+  
   # Create plot for the specific country
   p_N <- ggplot(country_data, aes(x = as.factor(year))) +
     geom_bar(aes(y = value/1000, fill = type), stat = "identity", position = "stack", width = 0.6) +

@@ -325,7 +325,7 @@ countries <- c(
 )
 
 # Setting directory
-figure_directory <- here("output", "figures", "fig4_diet", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure4_Consumption_by_foodgroup", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -369,7 +369,7 @@ for (country in countries) {
     )
   
   # Save the plot as a PNG file
-filename <- paste0("Fig4_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+filename <- paste0("Fig4_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".png")
 
 png(
   filename = here(figure_directory, filename),

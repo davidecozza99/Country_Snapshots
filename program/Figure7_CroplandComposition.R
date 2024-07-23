@@ -73,7 +73,7 @@ df_planted <- top_planted %>%
   rbind(rest_planted)  
 
 
-figure_directory <- here("output", "figures", "fig7_CroplandComposition")
+figure_directory <- here("output", "figures", "Figure7_CroplandComposition", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 

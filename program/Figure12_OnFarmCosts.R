@@ -94,7 +94,7 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "fig12_costs", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure12_OnFarmCosts", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -140,7 +140,7 @@ for (curr in countries) {
     )
   
   # Save the plot as a PNG file
-  filename <- paste0("Fig12_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", curr), ".png")
+  filename <- paste0("Fig12_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", curr), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "cm", height = 15.8, width = 17.4, res = 300)

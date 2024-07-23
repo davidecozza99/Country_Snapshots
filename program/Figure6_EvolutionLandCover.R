@@ -111,7 +111,7 @@ land_labels <- c(
   )
 
 #Setting directory
-figure_directory <- here("output", "figures", "fig6_land", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure6_EvolutionLandCover", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -173,7 +173,7 @@ for (country in countries) {
     )
   
   # Save the plot as a PNG file
-  filename <- paste0("Fig6_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  filename <- paste0("Fig6_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 16, width = 32, res = 300

@@ -47,7 +47,7 @@ countries <- c(
 )
 
 
-figure_directory <- here("output", "figures", "fig9_agro", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure9_ShareCroplandAgro", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -66,7 +66,7 @@ for (country in countries) {
   
   # Create ggplot for the specific country
   p_pathway <- ggplot(country_data, aes(x = Year, y = agroecosh, color = Pathway, linetype = Pathway)) +
-    geom_line(size = 1.3) + 
+    geom_line(linewidth = 1.3) + 
     labs(
       x = "",
       y = "% of cropland"
@@ -90,7 +90,7 @@ for (country in countries) {
     )
   
   # Save the plot as a TIFF file
-  filename <- paste0("Fig9_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", country), ".png")
+  filename <- paste0("Fig9_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", country), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 5, width = 7, res = 300

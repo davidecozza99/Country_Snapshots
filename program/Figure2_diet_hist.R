@@ -5,9 +5,11 @@
 
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
-               "conflicted", "cowplot", "patchwork", "egg", "readxl", 
+               "conflicted", "cowplot", 
+               "readxl", 
                "grid", "scales", "wesanderson", "tidyverse", "latex2exp", 
-               "stringr", "shadowtext", "here", "webr")
+               "stringr",  
+               "here", "webr")
 lapply(libraries, library, character.only = TRUE)
 
 require(moonBook)
@@ -94,7 +96,7 @@ FOOD_missing <- FOOD_missing %>%
 
 
 # Define the output directory
-figure_directory <- here("output", "figures", "fig2", format(Sys.Date(),format = "%y%m%d"))
+figure_directory <- here("output", "figures", "Figure2_diet_hist", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
@@ -364,7 +366,7 @@ for (ALPHA3 in countries) {
   )
   
   #Save the plot as TIFF file
-  filename <- paste0("Fig2_", gsub("-", "", Sys.Date()), "_", gsub(" ", "_", ALPHA3), ".png")
+  filename <- paste0("Fig2_", format(Sys.Date(),format = "%y%m%d"), "_", gsub(" ", "_", ALPHA3), ".png")
   png(
     filename = here(figure_directory, filename),
     units = "in", height = 3.25, width = 9, res = 300

@@ -1157,7 +1157,7 @@ create_plot <- function(data, alpha3) {
 
 
 # Define the output directory
-figure_directory <- here("output", "figures", "fig3_scenarios", paste0(gsub("-", "", Sys.Date())))
+figure_directory <- here("output", "figures", "Figure3_Scenarios_assumptions", format(Sys.Date(),format = "%y%m%d"))
 dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 print(figure_directory)
 
