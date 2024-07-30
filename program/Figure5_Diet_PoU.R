@@ -58,7 +58,7 @@ EAT_data <- read_excel(here("data", "DataForFoodFigures.xlsx"),
                        sheet = "EAT-LANCET", range = "A3:J17") 
 
 ### Food Missing
-FOOD_missing <- read_excel(here("data","Figure 6", "MissingFoodProducts.xlsx"), sheet = "figure6") %>% 
+FOOD_missing <- read_excel(here("data", "MissingFoodProducts.xlsx"), sheet = "figure6") %>% 
   mutate(PROD_GROUP = ifelse(
     Item %in% c("Wine", "Beer", "Beverages, Alcoholic"), "ALCOHOL","ANIMFAT" )) %>% 
   group_by(Country, PROD_GROUP) %>% 

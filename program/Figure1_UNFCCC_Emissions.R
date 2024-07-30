@@ -37,13 +37,13 @@ product <- read.csv(here("data",  "240523_FullProductDataBase.csv")) %>%
 
 
 #UNFCCC data for figure 3
-data_F3 <- as.data.frame(read_csv(here("data","Figure 3", "20230720_HomePageISO.csv"))) 
+data_F3 <- as.data.frame(read_csv(here("data","20230720_HomePageISO.csv"))) 
 data_F3$Category <- factor(data_F3$Category, levels = c("AFOLU", "Waste", "Energy", "IPPU", "Other"))
 
 
 
 # For Regions"
-GHG_region <- read_excel(here("data", "Figure 3", "GHG_region.xlsx"))
+GHG_region <- read_excel(here("data", "GHG_region.xlsx"))
 map_country_region <- read_excel(here("data", "mapping_country_FAO_FABLE.xlsx")) 
 
 
@@ -106,7 +106,7 @@ countries <- c(
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
 
-ALPHA3 <- "MEX"
+# ALPHA3 <- "MEX"
 # Loop over each country
 for (ALPHA3 in countries) {
   
