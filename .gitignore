@@ -8,7 +8,7 @@
 .RData
 paths
 .paths
-\output
+/output
 .Rproj.user/shared/notebooks/paths
 /.Rproj.user
 /old_data/
