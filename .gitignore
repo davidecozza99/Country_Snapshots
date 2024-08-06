@@ -3,7 +3,7 @@
 *.Rproj.user
 *.Rhistory
 *.RData
-/old_data/
+old_data/
 paths
 .paths
 /output
