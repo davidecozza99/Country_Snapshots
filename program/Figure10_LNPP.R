@@ -1,5 +1,4 @@
-### LNPP ###
-
+# Figure 10:LNPP (Land where Natural Processes predominates)
 
 # libraries ---------------------------------------------------------------
 library(here)
