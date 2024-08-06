@@ -1,14 +1,11 @@
 
 *.tiff
-*.tiff
-*.tiff
-*.tiff
-.Rproj.user
-.Rhistory
-.RData
+*.Rproj.user
+*.Rhistory
+*.RData
+old_data/
 paths
 .paths
 /output
 .Rproj.user/shared/notebooks/paths
 /.Rproj.user
-old_data/
