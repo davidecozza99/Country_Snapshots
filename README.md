@@ -5,7 +5,7 @@ Getting Started
 
 To run the scripts on your own device, follow these steps:
 
-1. **Clone the Repository:**
+1. **Clone the Repository**
   
 
 2. **Set Up the R Environment:**
@@ -15,14 +15,14 @@ To run the scripts on your own device, follow these steps:
    
    ```{R]
     install.packages("renv")
-``
+
 
 * Restore the project’s R environment:
 
    ```{R}
    library(renv)
-renv::restore() 
-``
+  renv::restore() 
+
 
 **Dependencies**
 
@@ -34,14 +34,4 @@ For any questions or issues related to the scripts, please contact:
 
     Davide Cozza (davide.cozza@unsdsn.org)
     Clara Douzal (clara.douzal@unsdsn.org)
-
-
-## Code with Copy Button
-
-Here is an example of R code with a copy button:
-
-```{r example-code}
-# This is an example R code
-x <- rnorm(100)
-mean(x)
 
