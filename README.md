@@ -16,13 +16,11 @@ To run the scripts on your own device, follow these steps:
    ```{R]
     install.packages("renv")
 
-
 * Restore the project’s R environment:
 
    ```{R}
    library(renv)
   renv::restore() 
-
 
 **Dependencies**
 
