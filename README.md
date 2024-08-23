@@ -1,0 +1,1 @@
+This repository was created to give you access to the R scripts behind all figures available in the FABLE country snapshots[\hyperlink:https://fableconsortium.org/publications/fable-pathways-for-sustainable-food-and-land-use-systems/]
