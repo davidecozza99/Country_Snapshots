@@ -8,36 +8,28 @@ To run the scripts on your own device, follow these steps:
 1. **Clone the Repository:**
    ```bash
    git clone [repository URL]
+``
 
-Set Up the R Environment:
-```R
-    Navigate to the cloned repository directory.
-    Install the required R packages using the renv environment. Ensure you have renv installed:
-```
+2. **Set Up the R Environment:**
 
-install.packages("renv")
+* Navigate to the cloned repository directory.
+* Install the required R packages using the renv environment. Ensure you have renv installed:
+   
+   ```R
+install.packages("renv")``
 
-Restore the project’s R environment:
+* Restore the project’s R environment:
 
-R
+   ```R
+library(renv)
+renv::restore() ``
 
-    library(renv)
-    renv::restore()
 
-Run the Scripts:
 
-    Open R or RStudio.
-    Set your working directory to the cloned repository:
-
-    R
-
-        setwd("path/to/cloned/repository")
-
-        Execute the desired R script.
-
-Dependencies
+**Dependencies**
 
 This project uses the renv package to manage R dependencies. The necessary packages and their versions are specified in the renv.lock file.
+
 Contact
 
 For any questions or issues related to the scripts, please contact:
