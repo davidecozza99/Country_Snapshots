@@ -13,12 +13,14 @@ To run the scripts on your own device, follow these steps:
 * Navigate to the cloned repository directory.
 * Install the required R packages using the renv environment. Ensure you have renv installed:
    
-   ```R install.packages("renv")
+   ```{R]
+    install.packages("renv")
 ``
 
 * Restore the project’s R environment:
 
-   ```R library(renv)
+   ```{R}
+   library(renv)
 renv::restore() 
 ``
 
