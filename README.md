@@ -6,9 +6,7 @@ Getting Started
 To run the scripts on your own device, follow these steps:
 
 1. **Clone the Repository:**
-   ```bash
-   git clone [repository URL]
-``
+  
 
 2. **Set Up the R Environment:**
 
@@ -16,15 +14,15 @@ To run the scripts on your own device, follow these steps:
 * Install the required R packages using the renv environment. Ensure you have renv installed:
    
    ```R
-install.packages("renv")``
+install.packages("renv")
+``
 
 * Restore the project’s R environment:
 
    ```R
 library(renv)
-renv::restore() ``
-
-
+renv::restore() 
+``
 
 **Dependencies**
 
