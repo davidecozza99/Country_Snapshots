@@ -106,7 +106,7 @@ print(figure_directory)
 
 
 countries <- c(
-  "ARG", "AUS", "BRA", "CAN", "CHN", "COL", "ETH", "FIN", "DEU", "IND", 
+  "ARG" , "AUS", "BRA", "CAN", "CHN", "COL", "ETH", "FIN", "DEU", "IND", 
   "IDN", "MEX", "NOR", "NPL", "TUR", "DNK", "GRC", "RWA", "SWE", "RUS", "GBR","USA",
   "R_ASP", "R_CSA", "R_NMC", "R_OEU", "R_NEU", "R_SSA"
 )
@@ -276,6 +276,7 @@ for (ALPHA3 in countries) {
     pivot_longer(c(`kcal/cap/day`, PoU), names_to = "layer", values_to = "label") %>% 
     mutate(label = ifelse(layer == "PoU", ifelse(is.na(label), "<2.5%", paste0(label, "%")), label)) %>% 
     mutate(layer = ifelse(layer == "PoU", "PoU", layer)) %>% 
+    mutate(pathway = factor(pathway, level = c("CurrentTrends", "NationalCommitments", "GlobalSustainability"))) %>% 
     ggplot(aes(x = 1)) +
     geom_text(aes(y = factor(layer, c("kcal/cap/day", "PoU")), label = label), size = 6) +
     labs(y = "", x = NULL) +
