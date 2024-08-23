@@ -5,18 +5,15 @@ Getting Started
 
 To run the scripts on your own device, follow these steps:
 
-    Clone the Repository:
-
-    bash
-
-git clone [repository URL]
+1. **Clone the Repository:**
+   ```bash
+   git clone [repository URL]
 
 Set Up the R Environment:
-
+```R
     Navigate to the cloned repository directory.
     Install the required R packages using the renv environment. Ensure you have renv installed:
-
-    R
+```
 
 install.packages("renv")
 
