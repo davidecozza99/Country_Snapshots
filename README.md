@@ -1,7 +1,8 @@
 This repository provides access to the R scripts used to generate all figures available in the [FABLE country snapshots](https://fableconsortium.org/publications/fable-pathways-for-sustainable-food-and-land-use-systems/).
 
 The scripts were developed by Davide Cozza and Clara Douzal from the FABLE Secretariat. Some of the figures are inspired by and have been enhanced from previous FABLE reports and briefs.
-Getting Started
+
+**Getting Started**
 
 To run the scripts on your own device, follow these steps:
 
