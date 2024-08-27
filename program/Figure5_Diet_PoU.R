@@ -1,7 +1,10 @@
 # Figure 5: Comparison of the computed daily average kilocalorie intake per capital per 
 # food category across the three pathways and the prevalence of undernourishment in 2050
 # Author: Clara Douzal (SDSN)
-# Last update: 20240529
+# Last update: 20240827
+# last script differs from the one used to generated the country snapshot figures 
+# where the National Commitments and Global Sustainability numbers for the 
+# Prevalence of Undernourishment were inverted
 
 
 libraries <- c("tidyr", "dplyr", "ggplot2", "reshape2", "RColorBrewer", 
